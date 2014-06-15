@@ -175,6 +175,7 @@ public class ServerHandler {
         packets.put(6, new Health06());
         packets.put(8, new PlayerPositionLook08());
         packets.put(9, new HeldItemChange09());
+        packets.put(12, trashPacket); //Player Spawn (visible range)
         packets.put(14, trashPacket); //Object(Vehicle) Spawn
         packets.put(15, trashPacket); //Entity Spawn (should add that later)
         packets.put(18, trashPacket); //Entity Velocity
@@ -191,6 +192,7 @@ public class ServerHandler {
         packets.put(34, trashPacket); //Multi Block Change
         packets.put(35, trashPacket); //Block Change, not important for now
         packets.put(38, trashPacket); //Map bulk
+        packets.put(41, trashPacket); //Sound Effect
         packets.put(43, trashPacket); //Gamestate Change (rain, credits)
         packets.put(47, trashPacket); //Inventory
         packets.put(48, trashPacket); //Inventory

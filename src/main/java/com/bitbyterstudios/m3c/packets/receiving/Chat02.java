@@ -32,13 +32,12 @@ public class Chat02 extends ReceivingPacket {
     }
 
     private void handleChat(ServerHandler handler, JSONObject chat) {
+        Client.getLogger().info(chat.toJSONString());
         if (chat.containsKey("text") && !chat.get("text").toString().isEmpty()) {
             handler.getClient().send(chat.get("text").toString());
         } else if (chat.containsKey("extra")) {
             JSONArray extra = (JSONArray) chat.get("extra");
-            if (((JSONObject) extra.get(0)).containsKey("text")) {
-                handler.getClient().send(((JSONObject) extra.get(0)).get("text").toString());
-            }
+            handler.getClient().send(extra.get(0).toString());
         } else {
             Client.getLogger().info("Unhandled chat message: " + chat.toJSONString());
         }
