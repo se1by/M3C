@@ -23,7 +23,7 @@ public class Client {
         //String user = console.readLine();
         send("password: ");
         //String pass = String.valueOf(console.readPassword());
-        String user = "jonas@bitbyterstudios.com"; //Used in development as IDE doesn't provide System.console()
+        String user = "<username here>"; //Used in development as IDE doesn't provide System.console()
         String pass = "<Password here>";
         ClientData data = ApiAccess.authenticate(user, pass);
 
