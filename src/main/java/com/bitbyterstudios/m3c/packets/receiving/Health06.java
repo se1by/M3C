@@ -2,6 +2,7 @@ package com.bitbyterstudios.m3c.packets.receiving;
 
 import com.bitbyterstudios.m3c.Client;
 import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.packets.sending.Status22;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -15,6 +16,13 @@ public class Health06 extends ReceivingPacket {
             float saturation = in.readFloat();
 
             Client.getLogger().fine(String.format("We got %f <3 (food = %s, saturation %f)", health, food, saturation));
+
+            if (health <= 0) {
+                Client.getLogger().fine("We are dead :o Better respawn...");
+                Status22 status = new Status22();
+                status.create();
+                handler.addPacketToSend(status);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

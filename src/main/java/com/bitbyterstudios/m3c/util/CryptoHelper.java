@@ -1,4 +1,4 @@
-package com.bitbyterstudios.m3c;
+package com.bitbyterstudios.m3c.util;
 
 import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.CipherKeyGenerator;

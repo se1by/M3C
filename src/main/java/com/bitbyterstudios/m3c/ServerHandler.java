@@ -5,6 +5,7 @@ import com.bitbyterstudios.m3c.packets.sending.EncryptionResponse01;
 import com.bitbyterstudios.m3c.packets.sending.HandShake00;
 import com.bitbyterstudios.m3c.packets.sending.LoginStart00;
 import com.bitbyterstudios.m3c.packets.sending.SendingPacket;
+import com.bitbyterstudios.m3c.util.CryptoHelper;
 
 import javax.crypto.SecretKey;
 import java.io.BufferedOutputStream;
@@ -77,7 +78,6 @@ public class ServerHandler {
             } else if (type == 1) { //We should encrypt!
                 encrypt((EncryptionRequest01) handlingPacket);
             } else if (type == 2) { //Yay, successful login!
-                //in.skipBytes(len -1);
                 break;
             }
         }
@@ -173,9 +173,12 @@ public class ServerHandler {
         packets.put(4, trashPacket); //Entity Equipment
         packets.put(5, new SpawnPosition05());
         packets.put(6, new Health06());
+        packets.put(7, new Respawn07());
         packets.put(8, new PlayerPositionLook08());
         packets.put(9, new HeldItemChange09());
+        packets.put(11, trashPacket); //Animation
         packets.put(12, trashPacket); //Player Spawn (visible range)
+        packets.put(13, trashPacket); //Collect Item
         packets.put(14, trashPacket); //Object(Vehicle) Spawn
         packets.put(15, trashPacket); //Entity Spawn (should add that later)
         packets.put(18, trashPacket); //Entity Velocity
@@ -185,15 +188,20 @@ public class ServerHandler {
         packets.put(23, trashPacket); //Entity Look & Relative Move
         packets.put(24, trashPacket); //Entity Teleport (move > 4 blocks)
         packets.put(25, trashPacket); //Entity Head Look
-        packets.put(26, trashPacket); //Entity Status (we need that later)
+        packets.put(26, new Status26());
+        packets.put(27, trashPacket); //Attach Entity
         packets.put(28, trashPacket); //Entity Metadata
         packets.put(31, new Experience31());
         packets.put(32, trashPacket); //Entity Properties
+        packets.put(33, trashPacket); //Multi Block Change
         packets.put(34, trashPacket); //Multi Block Change
         packets.put(35, trashPacket); //Block Change, not important for now
         packets.put(38, trashPacket); //Map bulk
+        packets.put(40, trashPacket); //Effect
         packets.put(41, trashPacket); //Sound Effect
         packets.put(43, trashPacket); //Gamestate Change (rain, credits)
+        packets.put(44, trashPacket); //Entity Metadata
+        packets.put(46, trashPacket); //Close window
         packets.put(47, trashPacket); //Inventory
         packets.put(48, trashPacket); //Inventory
         packets.put(53, trashPacket); //Block Entity Update

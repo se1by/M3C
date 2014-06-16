@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
-import com.bitbyterstudios.m3c.CryptoHelper;
+import com.bitbyterstudios.m3c.util.CryptoHelper;
 import com.bitbyterstudios.m3c.ServerHandler;
 
 import java.io.DataInputStream;

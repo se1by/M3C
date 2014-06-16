@@ -18,6 +18,6 @@ public class HandShake00 extends SendingPacket {
         buff.writeByte(PROTOCOL_VERSION);
         writeString(host);
         buff.writeShort(port);
-        buff.writeByte(2);
+        buff.writeByte(2); //Next state (2=Login, 1=Status)
     }
 }

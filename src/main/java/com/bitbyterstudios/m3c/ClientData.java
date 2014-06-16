@@ -1,12 +1,19 @@
 package com.bitbyterstudios.m3c;
 
+import com.bitbyterstudios.m3c.util.Location;
+
 public class ClientData {
     private String user;
     private String uuid;
+    private int entityId;
+    private Location location;
     private String clientToken;
     private String accessToken;
-
     private boolean spawned;
+
+    public ClientData() {
+        this.location = new Location();
+    }
 
     public String getUser() {
         return user;
@@ -22,6 +29,18 @@ public class ClientData {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setEntityId(int entityId) {
+        this.entityId = entityId;
     }
 
     public String getClientToken() {

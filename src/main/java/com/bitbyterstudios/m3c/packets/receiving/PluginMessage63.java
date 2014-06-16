@@ -1,5 +1,6 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
+import com.bitbyterstudios.m3c.Client;
 import com.bitbyterstudios.m3c.ServerHandler;
 import com.bitbyterstudios.m3c.packets.sending.PluginMessage17;
 
@@ -15,7 +16,7 @@ public class PluginMessage63 extends ReceivingPacket {
         try {
             String channel = readString(in);
             byte[] content = bytesFromStream(in);
-            System.out.println("got a msg from channel " + channel);
+            Client.getLogger().fine("got a msg from channel " + channel);
             handleContent(channel, content, handler);
         } catch (IOException e) {
             e.printStackTrace();
@@ -25,7 +26,7 @@ public class PluginMessage63 extends ReceivingPacket {
     private void handleContent(String channel, byte[] content, ServerHandler handler) {
         if (channel.equals("MC|Brand")) {
             String implementation = new String(content, Charset.forName("UTF-8"));
-            System.out.println("Server is running " + implementation);
+            Client.getLogger().fine("Server is running " + implementation);
             PluginMessage17 msg = new PluginMessage17();
             msg.setChannel("MC|Brand");
             try {

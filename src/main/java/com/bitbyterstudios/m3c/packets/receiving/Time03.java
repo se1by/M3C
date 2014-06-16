@@ -14,7 +14,7 @@ public class Time03 extends ReceivingPacket {
             long age = in.readLong();
             long time = in.readLong();
 
-            Client.getLogger().fine("World is " + (age / 24000) + " ingame days old, time is " + (time/1000 + 6));
+            Client.getLogger().finest("World is " + (age / 24000) + " ingame days old, time is " + (time/1000 + 6));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,5 +1,6 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
+import com.bitbyterstudios.m3c.Client;
 import com.bitbyterstudios.m3c.ServerHandler;
 
 import java.io.DataInputStream;
@@ -16,12 +17,13 @@ public class JoinGame01 extends ReceivingPacket {
             int difficulty = in.readByte() & 0xFF;
             int maxPlayers = in.readByte() & 0xFF;
             String levelType = readString(in);
-            System.out.println("Our entityID is " + entityId);
-            System.out.println("Our gamemode is " + gamemode);
-            System.out.println("We are in dimension " + dimension);
-            System.out.println("We play at difficulty " + difficulty);
-            System.out.println("Max players is " + maxPlayers);
-            System.out.println("Level type is " + levelType);
+            handler.getData().setEntityId(entityId);
+            Client.getLogger().fine("Our entityID is " + entityId);
+            Client.getLogger().fine("Our gamemode is " + gamemode);
+            Client.getLogger().fine("We are in dimension " + dimension);
+            Client.getLogger().fine("We play at difficulty " + difficulty);
+            Client.getLogger().fine("Max players is " + maxPlayers);
+            Client.getLogger().fine("Level type is " + levelType);
         } catch (IOException e) {
             e.printStackTrace();
         }
