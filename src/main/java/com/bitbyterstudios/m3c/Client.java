@@ -24,12 +24,12 @@ public class Client {
         //String user = console.readLine();
         send("password: ");
         //String pass = String.valueOf(console.readPassword());
-        String user = "jonas@bitbyterstudios.com"; //Used in development as IDE doesn't provide System.console()
-        String pass = "***REMOVED***";
+        String user = "<mail>"; //Used in development as IDE doesn't provide System.console()
+        String pass = "<pass>";
         ClientData data = ApiAccess.authenticate(user, pass);
 
         ServerHandler serverHandler = new ServerHandler(this, data);
-        serverHandler.init("5.45.109.216", 25565);
+        serverHandler.init("<ip>", 25565);
         serverHandler.listen();
         ApiAccess.invalidate(data);
     }
