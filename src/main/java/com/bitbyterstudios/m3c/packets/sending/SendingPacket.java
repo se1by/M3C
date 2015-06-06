@@ -7,7 +7,6 @@ import com.google.common.io.ByteStreams;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
 public abstract class SendingPacket {
     protected ByteArrayDataOutput buff;
@@ -43,48 +42,6 @@ public abstract class SendingPacket {
         buff.write(buff2.toByteArray());
         out.write(buff.toByteArray());
         out.flush();
-        testdecode(buff.toByteArray());
-    }
-
-    private void testdecode(byte[] bytes) {
-        if (this instanceof PlayerPositionLook06) {
-            PlayerPositionLook06 ppl = ((PlayerPositionLook06) this);
-            System.out.println("Should be: ");
-            System.out.println("packetID: 6");
-            System.out.println("x: " + ppl.getX());
-            System.out.println("y: " + ppl.getY());
-            System.out.println("z: " + ppl.getZ());
-            System.out.println("yaw: " + ppl.getYaw());
-            System.out.println("pitch: " + ppl.getPitch());
-            System.out.println("on ground: " + ppl.isOnGround());
-
-            ByteBuffer buff = ByteBuffer.wrap(bytes);
-
-            int pLength = Utilities.readVarInt(buff);
-            int length = Utilities.readVarInt(buff);
-
-            int packetID = 0;
-            double x = 0;
-            double y = 0;
-            double z = 0;
-            float yaw = 0;
-            float pitch = 0;
-            boolean onGround = false;
-            if (length == 0) {
-                System.out.println("NOT COMPRESSED");
-                packetID = Utilities.readVarInt(buff);
-                x = buff.getDouble();
-                y = buff.getDouble();
-                z = buff.getDouble();
-                yaw = buff.getFloat();
-                pitch = buff.getFloat();
-                onGround = buff.get() == 0x01;
-            }
-            System.out.println(pLength + "|" + length + "|" + packetID + "|" + x + "|" + y + "|" + z + "|" + yaw + "|"
-                    + pitch + "|" + onGround);
-            while (buff.position() < buff.limit())
-                System.out.println(buff.get());
-        }
     }
 
     public void writeBytes(byte[] data) {

@@ -1,7 +1,7 @@
 package com.bitbyterstudios.m3c.packets.sending;
 
-public class PluginMessage17 extends SendingPacket {
-    private static final int PACKET_ID = 17;
+public class PluginMessage23 extends SendingPacket {
+    private static final int PACKET_ID = 23;
     private String channel;
     private byte[] content;
 

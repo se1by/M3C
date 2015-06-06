@@ -127,46 +127,6 @@ public class ServerHandler {
             }
             packetsToSend.clear();
         }
-
-
-//        while (true) {
-//            int len = readVarInt(in);
-//            int type = readVarInt(in);
-//
-//            ReceivingPacket handlingPacket = packets.get(type);
-//            if (handlingPacket == null) {
-//                if (unknown > 3) {
-//                    return;
-//                }
-//                Client.getLogger().finer(type + "|" + len);
-//                byte[] rawData = new byte[len - 1];
-//                in.readFully(rawData);
-//                Client.getLogger().finer("Unknown packet, type " + type + ", len " + len + ":");
-//                if (len > 100) {
-//                    Client.getLogger().finer("Too big to capture that :o");
-//                    unknown++;
-//                    continue;
-//                }
-//                Client.getLogger().finer("-------------------");
-//                for (byte b : rawData) {
-//                    Client.getLogger().finer("" + (b & 0xFF));
-//                }
-//                Client.getLogger().finer("-------------------");
-//                unknown++;
-//                continue;
-//                //throw new IllegalStateException("Couldn't find a packet to handle type " + type + "!");
-//            } else {
-//                Client.getLogger().finest("Received packet, type " + handlingPacket.getClass().getSimpleName()
-//                        + (handlingPacket.getClass().getSimpleName().equals(TrashPacket.class.getSimpleName()) ? "(" + type + ")" : "")
-//                        + ", len " + len);
-//            }
-//            handlingPacket.read(in, len - 1, this);
-//            for (SendingPacket packet : packetsToSend) {
-//                Client.getLogger().finest("sending packet " + packet.getClass().getSimpleName());
-//                packet.send(out);
-//            }
-//            packetsToSend.clear();
-//        }
     }
 
     private boolean handleLogin() throws IOException {
@@ -336,6 +296,7 @@ public class ServerHandler {
         packets.put(62, trashPacket); //Teams
         packets.put(63, new PluginMessage63());
         packets.put(64, new Disconnect00());
+        packets.put(65, trashPacket); //Server difficulty
         packets.put(68, trashPacket); //Worldborder
     }
 

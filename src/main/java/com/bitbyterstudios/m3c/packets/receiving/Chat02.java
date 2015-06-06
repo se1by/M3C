@@ -7,8 +7,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class Chat02 extends ReceivingPacket {
@@ -17,19 +15,6 @@ public class Chat02 extends ReceivingPacket {
 
     public Chat02() {
         parser = new JSONParser();
-    }
-
-    @Override
-    public void read(DataInputStream in, int len, ServerHandler handler) {
-        try {
-            String jsonString = readString(in);
-            JSONObject chat = (JSONObject) parser.parse(jsonString);
-            handleChat(handler, chat);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

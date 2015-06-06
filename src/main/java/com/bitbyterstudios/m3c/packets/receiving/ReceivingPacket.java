@@ -29,8 +29,6 @@ public abstract class ReceivingPacket {
         return bytes;
     }
 
-    public abstract void read(DataInputStream in, int len, ServerHandler handler);
-
     public abstract void handle(ByteBuffer buff, ServerHandler handler);
 
     public String readString(DataInputStream in) throws IOException {
