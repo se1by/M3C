@@ -7,6 +7,7 @@ import com.bitbyterstudios.m3c.packets.sending.PluginMessage17;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 public class PluginMessage63 extends ReceivingPacket {
@@ -21,6 +22,14 @@ public class PluginMessage63 extends ReceivingPacket {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void handle(ByteBuffer buff, ServerHandler handler) {
+        String channel = readString(buff);
+        byte[] content = bytesFromBuff(buff);
+        Client.getLogger().fine("got a msg from channel " + channel);
+        handleContent(channel, content, handler);
     }
 
     private void handleContent(String channel, byte[] content, ServerHandler handler) {

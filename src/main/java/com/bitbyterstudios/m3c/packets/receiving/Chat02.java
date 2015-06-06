@@ -9,7 +9,7 @@ import org.json.simple.parser.ParseException;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Iterator;
+import java.nio.ByteBuffer;
 
 public class Chat02 extends ReceivingPacket {
 
@@ -32,7 +32,19 @@ public class Chat02 extends ReceivingPacket {
         }
     }
 
+    @Override
+    public void handle(ByteBuffer buff, ServerHandler handler) {
+        try {
+            String jsonString = readString(buff);
+            JSONObject chat = (JSONObject) parser.parse(jsonString);
+            handleChat(handler, chat);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void handleChat(ServerHandler handler, JSONObject chat) {
+        Client.getLogger().finest(chat.toJSONString());
         if (chat.containsKey("text") && !chat.get("text").toString().isEmpty()) {
             handler.getClient().send(chat.get("text").toString());
         } else if (chat.containsKey("extra")) {
@@ -59,9 +71,12 @@ public class Chat02 extends ReceivingPacket {
 
     private String handleExtra(JSONArray extra) {
         StringBuilder sb = new StringBuilder();
-        Iterator iterator = extra.iterator();
-        while (iterator.hasNext()) {
-            JSONObject obj = (JSONObject) iterator.next();
+        for (Object o : extra) {
+            if (o instanceof String) {
+                if (((String) o).isEmpty()) continue;
+                Client.getLogger().warning("Unhandled extra: " + o.toString());
+            }
+            JSONObject obj = (JSONObject) o;
             if (obj.get("text").toString().isEmpty()) {
                 continue;
             }

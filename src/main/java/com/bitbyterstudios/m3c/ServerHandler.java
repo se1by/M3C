@@ -6,6 +6,7 @@ import com.bitbyterstudios.m3c.packets.sending.HandShake00;
 import com.bitbyterstudios.m3c.packets.sending.LoginStart00;
 import com.bitbyterstudios.m3c.packets.sending.SendingPacket;
 import com.bitbyterstudios.m3c.util.CryptoHelper;
+import com.bitbyterstudios.m3c.util.Utilities;
 
 import javax.crypto.SecretKey;
 import java.io.BufferedOutputStream;
@@ -13,10 +14,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.logging.Logger;
+import java.util.zip.DataFormatException;
 
 public class ServerHandler {
 
@@ -29,6 +32,8 @@ public class ServerHandler {
     private HashMap<Integer, ReceivingPacket> login;
     private HashMap<Integer, ReceivingPacket> packets;
     private Collection<SendingPacket> packetsToSend;
+
+    private int compressionThreshold;
 
     public ServerHandler(Client client, ClientData data) {
         this.client = client;
@@ -52,74 +57,174 @@ public class ServerHandler {
             init("localhost", 25565);
             Client.getLogger().warning("Init with localhost:25565 as not done before!");
         }
-        HandShake00 handShake = new HandShake00(socket.getInetAddress().getHostAddress(), socket.getPort());
-        handShake.create();
-        handShake.send(out);
 
-        LoginStart00 loginStart = new LoginStart00(data.getUser());
-        loginStart.create();
-        loginStart.send(out);
-
-        while (true) {
-            int len = readVarInt(in);
-            int type = readVarInt(in);
-
-
-            ReceivingPacket handlingPacket = login.get(type);
-            if (handlingPacket == null) {
-                Client.getLogger().severe("Received unknown  packet, type " + type + " with length " + len);
-                throw new IllegalStateException("Couldn't find a packet to handle type " + type + "(len " + len + "!");
-            } else {
-                Client.getLogger().finest("Received packet, type " + handlingPacket.getClass().getSimpleName() + ", len " + len);
-            }
-            handlingPacket.read(in, len - 1, this);
-            if (type == 0) { //We got kicked :(
-                return;
-            } else if (type == 1) { //We should encrypt!
-                encrypt((EncryptionRequest01) handlingPacket);
-            } else if (type == 2) { //Yay, successful login!
-                break;
-            }
+        if (handleLogin()) {
+            Client.getLogger().info("Successfully logged in!");
+        } else {
+            Client.getLogger().severe("You got kicked!");
+            return;
         }
 
         int unknown = 0;
         while (true) {
-            int len = readVarInt(in);
-            int type = readVarInt(in);
+            ByteBuffer buff;
+            int len;
 
-            ReceivingPacket handlingPacket = packets.get(type);
-            if (handlingPacket == null) {
+            if (compressionThreshold > 0) {
+                int plen = readVarInt(in); //packet length
+                len = readVarInt(in); //length of uncompressed
+                plen -= Utilities.getVarIntWidth(len);
+
+                byte[] raw = new byte[plen];
+                in.readFully(raw);
+
+                if (len > 0) {
+                    try {
+                        buff = ByteBuffer.wrap(Utilities.decompress(raw));
+                    } catch (DataFormatException e) {
+                        e.printStackTrace();
+                        continue;
+                    }
+                } else {
+                    buff = ByteBuffer.wrap(raw);
+                    //let's "fix" len for debug output below
+                    len = plen - 1;
+                }
+            } else {
+                len = readVarInt(in);
+                byte[] raw = new byte[len];
+                in.readFully(raw);
+                buff = ByteBuffer.wrap(raw);
+            }
+
+            int type = readVarInt(buff);
+            ReceivingPacket rPacket = packets.get(type);
+            if (rPacket == null) {
                 if (unknown > 3) {
                     return;
                 }
-                Client.getLogger().finer(type + "|" + len);
-                byte[] rawData = new byte[len - 1];
-                in.readFully(rawData);
-                Client.getLogger().finer("Unknown packet, type " + type + ", len " + len + ":");
+                Client.getLogger().finer("0x" + Integer.toHexString(type) + "(" + type + ") | " + len);
                 if (len > 100) {
-                    Client.getLogger().finer("Too big to capture that :o");
-                    unknown++;
-                    continue;
+                    Client.getLogger().finer("Too big, won't capture");
+                } else {
+                    Client.getLogger().finer("----------------------------");
+                    for (int i = buff.position(); i < buff.limit(); i++) {
+                        Client.getLogger().finer("" + (buff.get(i) & 0xFF));
+                    }
+                    Client.getLogger().finer("----------------------------");
                 }
-                Client.getLogger().finer("-------------------");
-                for (byte b : rawData) {
-                    Client.getLogger().finer("" + (b & 0xFF));
-                }
-                Client.getLogger().finer("-------------------");
                 unknown++;
-                continue;
-                //throw new IllegalStateException("Couldn't find a packet to handle type " + type + "!");
             } else {
-                Client.getLogger().finest("Received packet, type " + handlingPacket.getClass().getSimpleName()
-                        + (handlingPacket.getClass().getSimpleName().equals(TrashPacket.class.getSimpleName()) ? "(" + type + ")" : "")
-                        + ", len " + len);
+                Client.getLogger().finest("Received packet, type " + rPacket.getClass().getSimpleName()
+                        + (rPacket.getClass().getSimpleName().equals(TrashPacket.class.getSimpleName()) ? "(" + type + ")" : "")
+                        + ", hex 0x" + Integer.toHexString(type) + " len " + len);
+                rPacket.handle(buff, this);
             }
-            handlingPacket.read(in, len - 1, this);
+
             for (SendingPacket packet : packetsToSend) {
                 Client.getLogger().finest("sending packet " + packet.getClass().getSimpleName());
-                packet.send(out);
+                packet.send(out, compressionThreshold);
             }
             packetsToSend.clear();
+        }
+
+
+//        while (true) {
+//            int len = readVarInt(in);
+//            int type = readVarInt(in);
+//
+//            ReceivingPacket handlingPacket = packets.get(type);
+//            if (handlingPacket == null) {
+//                if (unknown > 3) {
+//                    return;
+//                }
+//                Client.getLogger().finer(type + "|" + len);
+//                byte[] rawData = new byte[len - 1];
+//                in.readFully(rawData);
+//                Client.getLogger().finer("Unknown packet, type " + type + ", len " + len + ":");
+//                if (len > 100) {
+//                    Client.getLogger().finer("Too big to capture that :o");
+//                    unknown++;
+//                    continue;
+//                }
+//                Client.getLogger().finer("-------------------");
+//                for (byte b : rawData) {
+//                    Client.getLogger().finer("" + (b & 0xFF));
+//                }
+//                Client.getLogger().finer("-------------------");
+//                unknown++;
+//                continue;
+//                //throw new IllegalStateException("Couldn't find a packet to handle type " + type + "!");
+//            } else {
+//                Client.getLogger().finest("Received packet, type " + handlingPacket.getClass().getSimpleName()
+//                        + (handlingPacket.getClass().getSimpleName().equals(TrashPacket.class.getSimpleName()) ? "(" + type + ")" : "")
+//                        + ", len " + len);
+//            }
+//            handlingPacket.read(in, len - 1, this);
+//            for (SendingPacket packet : packetsToSend) {
+//                Client.getLogger().finest("sending packet " + packet.getClass().getSimpleName());
+//                packet.send(out);
+//            }
+//            packetsToSend.clear();
+//        }
+    }
+
+    private boolean handleLogin() throws IOException {
+        HandShake00 handShake = new HandShake00(socket.getInetAddress().getHostAddress(), socket.getPort());
+        handShake.create();
+        handShake.send(out, compressionThreshold);
+
+        LoginStart00 loginStart = new LoginStart00(data.getUser());
+        loginStart.create();
+        loginStart.send(out, compressionThreshold);
+
+        while (true) {
+            ByteBuffer buff;
+            int len;
+
+            if (compressionThreshold > 0) {
+                int plen = readVarInt(in); //packet length
+                len = readVarInt(in); //length of uncompressed
+                plen -= Utilities.getVarIntWidth(len);
+
+                byte[] raw = new byte[plen];
+                in.readFully(raw);
+
+                if (len > 0) {
+                    try {
+                        buff = ByteBuffer.wrap(Utilities.decompress(raw));
+                    } catch (DataFormatException e) {
+                        e.printStackTrace();
+                        continue;
+                    }
+                } else {
+                    buff = ByteBuffer.wrap(raw);
+                }
+            } else {
+                len = readVarInt(in);
+                byte[] raw = new byte[len];
+                in.readFully(raw);
+                buff = ByteBuffer.wrap(raw);
+            }
+
+            int type = readVarInt(buff);
+
+
+            ReceivingPacket handlingPacket = login.get(type);
+            if (handlingPacket == null) {
+                Client.getLogger().severe("Received unknown  packet, type 0x" + Integer.toHexString(type) + " with length " + len);
+                throw new IllegalStateException("Couldn't find a packet to handle type " + type + "(len " + len + ")!");
+            } else {
+                Client.getLogger().finest("Received packet, type " + handlingPacket.getClass().getSimpleName() + ", len " + len);
+            }
+            handlingPacket.handle(buff, this);
+            if (type == 0) { //We got kicked :(
+                return false;
+            } else if (type == 1) { //We should encrypt!
+                encrypt((EncryptionRequest01) handlingPacket);
+            } else if (type == 2) { //Yay, successful login!
+                return true;
+            }
         }
     }
 
@@ -131,7 +236,7 @@ public class ServerHandler {
         byte[] verify = CryptoHelper.encryptData(req.getPubKey(), req.getVerifyToken());
         EncryptionResponse01 response = new EncryptionResponse01(secret, verify);
         response.create();
-        response.send(out);
+        response.send(out, compressionThreshold);
         out.flush();
         BufferedOutputStream buffOut = new BufferedOutputStream(CryptoHelper.encryptOuputStream(secretKey, socket.getOutputStream()));
         out = new DataOutputStream(buffOut);
@@ -147,7 +252,22 @@ public class ServerHandler {
             i |= (k & 0x7F) << j++ * 7;
             if (j > 5) throw new RuntimeException("VarInt too big");
 
-            if ((k & 0x80) != 128) break;
+            if ((k & 0x80) != 128) break; //MSB not set? 0x80 = 1000 0000(b)
+        }
+
+        return i;
+    }
+
+    public int readVarInt(ByteBuffer buff) {
+        int i = 0;
+        int j = 0;
+        while (true) {
+            int k = buff.get();
+
+            i |= (k & 0x7F) << j++ * 7;
+            if (j > 5) throw new RuntimeException("VarInt too big");
+
+            if ((k & 0x80) != 128) break; //MSB not set? 0x80 = 1000 0000(b)
         }
 
         return i;
@@ -162,6 +282,7 @@ public class ServerHandler {
         login.put(0, new Disconnect00());
         login.put(1, new EncryptionRequest01());
         login.put(2, new LoginSuccess02());
+        login.put(0x03, new SetCompression03());
 
 
         TrashPacket trashPacket = new TrashPacket();
@@ -198,17 +319,24 @@ public class ServerHandler {
         packets.put(35, trashPacket); //Block Change, not important for now
         packets.put(38, trashPacket); //Map bulk
         packets.put(40, trashPacket); //Effect
-        packets.put(41, trashPacket); //Sound Effect
+        packets.put(41, new SoundEffect41()); //Sound Effect
+        packets.put(42, trashPacket); //Particles
         packets.put(43, trashPacket); //Gamestate Change (rain, credits)
         packets.put(44, trashPacket); //Entity Metadata
         packets.put(46, trashPacket); //Close window
         packets.put(47, trashPacket); //Inventory
         packets.put(48, trashPacket); //Inventory
+        packets.put(51, trashPacket); //Display Scoreboard
         packets.put(53, trashPacket); //Block Entity Update
         packets.put(55, new Statistic55());
         packets.put(56, new PlayerListItem56());
         packets.put(57, new PlayerAbilities57());
+        packets.put(59, trashPacket); //Scoreboards
+        packets.put(61, trashPacket); //Scoreboards
+        packets.put(62, trashPacket); //Teams
         packets.put(63, new PluginMessage63());
+        packets.put(64, new Disconnect00());
+        packets.put(68, trashPacket); //Worldborder
     }
 
     public Logger getLogger() {
@@ -221,5 +349,9 @@ public class ServerHandler {
 
     public ClientData getData() {
         return data;
+    }
+
+    public void setCompressionThreshold(int compressionThreshold) {
+        this.compressionThreshold = compressionThreshold;
     }
 }

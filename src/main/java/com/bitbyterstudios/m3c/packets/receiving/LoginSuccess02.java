@@ -4,6 +4,7 @@ import com.bitbyterstudios.m3c.ServerHandler;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class LoginSuccess02 extends ReceivingPacket {
     @Override
@@ -17,5 +18,13 @@ public class LoginSuccess02 extends ReceivingPacket {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void handle(ByteBuffer buff, ServerHandler handler) {
+        String uuid = readString(buff);
+        String username = readString(buff);
+        System.out.println("Logged in as " + username);
+        System.out.println("UUID is " + uuid);
     }
 }

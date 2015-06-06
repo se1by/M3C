@@ -4,13 +4,15 @@ import com.bitbyterstudios.m3c.ServerHandler;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 public abstract class ReceivingPacket {
 
     public static byte[] bytesFromStream(DataInputStream in) {
-        short length = 0;
+        int length;
         try {
-            length = in.readShort();
+            length = readVarInt(in);
             byte[] arr = new byte[length];
             in.readFully(arr);
             return arr;
@@ -20,7 +22,16 @@ public abstract class ReceivingPacket {
         return null;
     }
 
+    public static byte[] bytesFromBuff(ByteBuffer buff) {
+        int length = readVarInt(buff);
+        byte[] bytes = new byte[length];
+        buff.get(bytes, 0, length);
+        return bytes;
+    }
+
     public abstract void read(DataInputStream in, int len, ServerHandler handler);
+
+    public abstract void handle(ByteBuffer buff, ServerHandler handler);
 
     public String readString(DataInputStream in) throws IOException {
         int length = readVarInt(in);
@@ -29,7 +40,14 @@ public abstract class ReceivingPacket {
         return new String(stringBytes, "UTF-8");
     }
 
-    public int readVarInt(DataInputStream ins) throws IOException {
+    public String readString(ByteBuffer buff) {
+        int length = readVarInt(buff);
+        byte[] stringBytes = new byte[length];
+        buff.get(stringBytes, 0, length);
+        return new String(stringBytes, Charset.forName("UTF-8"));
+    }
+
+    public static int readVarInt(DataInputStream ins) throws IOException {
         int i = 0;
         int j = 0;
         while (true){
@@ -40,6 +58,21 @@ public abstract class ReceivingPacket {
             if (j > 5) throw new RuntimeException("VarInt too big");
 
             if ((k & 0x80) != 128) break;
+        }
+
+        return i;
+    }
+
+    public static int readVarInt(ByteBuffer buff) {
+        int i = 0;
+        int j = 0;
+        while (true) {
+            int k = buff.get();
+
+            i |= (k & 0x7F) << j++ * 7;
+            if (j > 5) throw new RuntimeException("VarInt too big");
+
+            if ((k & 0x80) != 128) break; //MSB not set? 0x80 = 1000 0000(b)
         }
 
         return i;

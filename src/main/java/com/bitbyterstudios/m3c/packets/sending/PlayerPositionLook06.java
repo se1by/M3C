@@ -18,7 +18,6 @@ public class PlayerPositionLook06 extends SendingPacket {
         writeVarInt(PACKET_ID);
         buff.writeDouble(x);
         buff.writeDouble(y - 1.62);
-        buff.writeDouble(y);
         buff.writeDouble(z);
         buff.writeFloat(yaw);
         buff.writeFloat(pitch);
@@ -32,5 +31,29 @@ public class PlayerPositionLook06 extends SendingPacket {
         this.yaw = yaw;
         this.pitch = pitch;
         this.onGround = onGround;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getZ() {
+        return z;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
+    public boolean isOnGround() {
+        return onGround;
     }
 }

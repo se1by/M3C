@@ -29,7 +29,7 @@ public class Client {
         ClientData data = ApiAccess.authenticate(user, pass);
 
         ServerHandler serverHandler = new ServerHandler(this, data);
-        serverHandler.init("<ip>", 25565);
+        serverHandler.init("localhost", 25565);
         serverHandler.listen();
         ApiAccess.invalidate(data);
     }
@@ -50,11 +50,11 @@ public class Client {
             logger.addHandler(fileHandler);
             fileHandler.setFormatter(new LogFormatter());
             fileHandler.setLevel(Level.FINEST);
-            logger.setLevel(Level.FINER);
+            logger.setLevel(Level.FINEST);
             ConsoleHandler consoleHandler = new ConsoleHandler();
             logger.addHandler(consoleHandler);
             consoleHandler.setFormatter(new LogFormatter());
-            consoleHandler.setLevel(Level.FINER);
+            consoleHandler.setLevel(Level.FINEST);
         } catch (IOException e) {
             System.out.println("Couldn't setup logger!");
             e.printStackTrace();

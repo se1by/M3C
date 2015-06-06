@@ -5,6 +5,7 @@ import com.bitbyterstudios.m3c.ServerHandler;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class HeldItemChange09 extends ReceivingPacket {
 
@@ -16,5 +17,11 @@ public class HeldItemChange09 extends ReceivingPacket {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void handle(ByteBuffer buff, ServerHandler handler) {
+        byte slot = buff.get();
+        Client.getLogger().fine("We got slot " + slot + " selected");
     }
 }

@@ -2,7 +2,7 @@ package com.bitbyterstudios.m3c.packets.sending;
 
 public class HandShake00 extends SendingPacket {
     private static final int PACKET_ID = 0;
-    private static final int PROTOCOL_VERSION = 5;
+    private static final int PROTOCOL_VERSION = 47;
 
     private String host;
     private int port;
