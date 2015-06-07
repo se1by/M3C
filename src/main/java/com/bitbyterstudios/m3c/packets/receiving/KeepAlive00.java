@@ -8,7 +8,7 @@ public class KeepAlive00 extends ReceivingPacket {
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
-        int id = buff.getInt();
+        int id = readVarInt(buff);
         com.bitbyterstudios.m3c.packets.sending.KeepAlive00 response
                 = new com.bitbyterstudios.m3c.packets.sending.KeepAlive00();
         response.setId(id);
