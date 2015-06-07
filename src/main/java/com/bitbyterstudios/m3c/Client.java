@@ -1,9 +1,10 @@
 package com.bitbyterstudios.m3c;
 
 import com.bitbyterstudios.m3c.util.LogFormatter;
+import org.yaml.snakeyaml.Yaml;
 
-import java.io.Console;
-import java.io.IOException;
+import java.io.*;
+import java.util.Map;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -20,12 +21,27 @@ public class Client {
             //System.exit(0);
         }
         send("Started MC-Console-Client v0.1 ...");
-        send("username: ");
-        //String user = console.readLine();
-        send("password: ");
-        //String pass = String.valueOf(console.readPassword());
-        String user = "<mail>"; //Used in development as IDE doesn't provide System.console()
-        String pass = "<pass>";
+        String user = null;
+        String pass = null;
+
+        File config = new File("m3c.yml");
+        if (config.exists()) {
+            Yaml yaml = new Yaml();
+            Map map = (Map) yaml.load(new FileInputStream(config));
+            user = (String) map.get("user");
+            pass = (String) map.get("pass");
+        }
+
+        if (user == null || user.isEmpty()) {
+            send("username: ");
+            user = console.readLine();
+        }
+
+        if (pass == null || pass.isEmpty()) {
+            send("password: ");
+            pass = String.valueOf(console.readPassword());
+
+        }
         ClientData data = ApiAccess.authenticate(user, pass);
 
         ServerHandler serverHandler = new ServerHandler(this, data);

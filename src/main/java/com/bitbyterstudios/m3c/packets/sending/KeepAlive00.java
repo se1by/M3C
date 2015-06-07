@@ -11,7 +11,7 @@ public class KeepAlive00 extends SendingPacket {
     @Override
     public void create() {
         writeVarInt(PACKET_ID);
-        buff.writeInt(id);
+        writeVarInt(id);
     }
 
     public void setId(int id) {
