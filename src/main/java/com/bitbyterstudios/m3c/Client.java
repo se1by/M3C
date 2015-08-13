@@ -1,5 +1,6 @@
 package com.bitbyterstudios.m3c;
 
+import com.bitbyterstudios.m3c.plugin.PluginManager;
 import com.bitbyterstudios.m3c.util.LogFormatter;
 import org.yaml.snakeyaml.Yaml;
 
@@ -14,13 +15,25 @@ public class Client {
 
     private static final Logger logger = Logger.getLogger("M3C");
 
+    private PluginManager pluginManager;
+
+    private String server;
+    private int port;
+
+    private String user;
+    private String password;
+
+    public Client() {
+        pluginManager = new PluginManager(this);
+    }
+
     public void start() throws IOException {
         Console console = System.console();
         if (console == null) {
             logger.severe("Couldn't get Console instance");
             //System.exit(0);
         }
-        send("Started MC-Console-Client v0.1 ...");
+        send("Started MC-Console-Client v0.2 ...");
         String user = null;
         String pass = null;
 
@@ -30,6 +43,8 @@ public class Client {
             Map map = (Map) yaml.load(new FileInputStream(config));
             user = (String) map.get("user");
             pass = (String) map.get("pass");
+            server = (String) map.get("server");
+            port = map.containsKey("port") ? (Integer) map.get("port") : 25565;
         }
 
         if (user == null || user.isEmpty()) {
@@ -40,23 +55,67 @@ public class Client {
         if (pass == null || pass.isEmpty()) {
             send("password: ");
             pass = String.valueOf(console.readPassword());
-
         }
+
+        if (server == null || server.isEmpty()) {
+            server = "mc.hypixel.net";
+        }
+
+        if (port == 0) {
+            port = 25565;
+        }
+
+        pluginManager.load();
+
+        getLogger().info("Authenticating...");
         ClientData data = ApiAccess.authenticate(user, pass);
 
+        getLogger().info("Connecting to " + server + ":" + port);
         ServerHandler serverHandler = new ServerHandler(this, data);
-        serverHandler.init("localhost", 25565);
+        serverHandler.init(server, port);
         serverHandler.listen();
         ApiAccess.invalidate(data);
     }
 
     public void send(String msg) {
-        System.out.println(msg);
+        //System.out.println(msg);
         getLogger().info(msg);
     }
 
     public static Logger getLogger() {
         return logger;
+    }
+
+    public String getServer() {
+        return server;
+    }
+
+    public void setServer(String server) {
+        this.server = server;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String getPassword() {
+        return "lolnope";
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public static void main(String[] args) throws IOException {
@@ -70,9 +129,9 @@ public class Client {
             ConsoleHandler consoleHandler = new ConsoleHandler();
             logger.addHandler(consoleHandler);
             consoleHandler.setFormatter(new LogFormatter());
-            consoleHandler.setLevel(Level.FINEST);
+            consoleHandler.setLevel(Level.INFO);
         } catch (IOException e) {
-            System.out.println("Couldn't setup logger!");
+            System.err.println("Couldn't setup logger!");
             e.printStackTrace();
         }
         new Client().start();

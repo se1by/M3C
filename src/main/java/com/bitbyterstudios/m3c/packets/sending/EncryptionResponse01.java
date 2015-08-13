@@ -1,5 +1,7 @@
 package com.bitbyterstudios.m3c.packets.sending;
 
+import com.bitbyterstudios.m3c.Client;
+
 public class EncryptionResponse01 extends SendingPacket {
     private static final int PACKET_ID = 1;
     private final byte[] secret;
@@ -9,7 +11,7 @@ public class EncryptionResponse01 extends SendingPacket {
         super();
         this.secret = secret;
         this.verifyToken = verifyToken;
-        System.out.println("secret length is " + secret.length);
+        Client.getLogger().fine("secret length is " + secret.length);
     }
 
     @Override

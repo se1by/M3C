@@ -7,30 +7,50 @@ import com.bitbyterstudios.m3c.packets.sending.PluginMessage23;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PluginMessage63 extends ReceivingPacket {
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
         String channel = readString(buff);
-        byte[] content = bytesFromBuff(buff);
         Client.getLogger().fine("got a msg from channel " + channel);
-        handleContent(channel, content, handler);
+        if (channel.equals("MC|Brand")) {
+            handleBrand(buff, handler);
+        } else if (channel.equals("REGISTER")) {
+            handleRegister(buff);
+        } else {
+            Client.getLogger().warning("Unknown channel " + channel);
+        }
     }
 
-    private void handleContent(String channel, byte[] content, ServerHandler handler) {
-        if (channel.equals("MC|Brand")) {
-            String implementation = new String(content, Charset.forName("UTF-8"));
-            Client.getLogger().fine("Server is running " + implementation);
-            PluginMessage23 msg = new PluginMessage23();
-            msg.setChannel("MC|Brand");
-            try {
-                msg.setContent("M3C".getBytes("UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+    private void handleRegister(ByteBuffer buff) {
+        List<String> list = new ArrayList<String>();
+        ByteBuffer temp = ByteBuffer.allocate(16);
+        while (buff.hasRemaining()) {
+            byte next = buff.get();
+            if (next == 0x00) {
+                list.add(new String(temp.array()));
+                temp.clear();
+            } else {
+                temp.put(next);
             }
-            msg.create();
-            handler.addPacketToSend(msg);
         }
+        Client.getLogger().fine("Server registered these channels: " + String.join(", ", list));
+    }
+
+    private void handleBrand(ByteBuffer buff, ServerHandler handler) {
+        String implementation = readString(buff);
+        Client.getLogger().fine("Server is running " + implementation);
+        PluginMessage23 msg = new PluginMessage23();
+        msg.setChannel("MC|Brand");
+        try {
+            msg.setContent("M3C".getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        msg.create();
+        handler.addPacketToSend(msg);
     }
 }

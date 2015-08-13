@@ -10,10 +10,10 @@ public class PlayerAbilities57 extends ReceivingPacket {
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
         byte flags = buff.get();
-        boolean creative = Utilities.getBit(flags, 0) == 1;
-        boolean flying = Utilities.getBit(flags, 1) == 1;
-        boolean godmode = Utilities.getBit(flags, 2) == 1;
-        boolean nodamage = Utilities.getBit(flags, 3) == 1;
+        boolean creative = Utilities.getBit(flags, 0);
+        boolean flying = Utilities.getBit(flags, 1);
+        boolean godmode = Utilities.getBit(flags, 2);
+        boolean nodamage = Utilities.getBit(flags, 3);
         float flyingSpeed = buff.getFloat();
         float walkingSpeed = buff.getFloat();
         handler.getLogger().fine("Creative: " + creative);

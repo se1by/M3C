@@ -1,3 +1,4 @@
+
 package com.bitbyterstudios.m3c;
 
 import com.bitbyterstudios.m3c.packets.receiving.*;
@@ -103,21 +104,10 @@ public class ServerHandler {
                 if (unknown > 3) {
                     return;
                 }
-                Client.getLogger().finer("0x" + Integer.toHexString(type) + "(" + type + ") | " + len);
-                if (len > 100) {
-                    Client.getLogger().finer("Too big, won't capture");
-                } else {
-                    Client.getLogger().finer("----------------------------");
-                    for (int i = buff.position(); i < buff.limit(); i++) {
-                        Client.getLogger().finer("" + (buff.get(i) & 0xFF));
-                    }
-                    Client.getLogger().finer("----------------------------");
-                }
+                handleUnknown(buff, type, len);
                 unknown++;
             } else {
-                Client.getLogger().finest("Received packet, type " + rPacket.getClass().getSimpleName()
-                        + (rPacket.getClass().getSimpleName().equals(TrashPacket.class.getSimpleName()) ? "(" + type + ")" : "")
-                        + ", hex 0x" + Integer.toHexString(type) + " len " + len);
+                logReceivedPacket(rPacket, type, len);
                 rPacket.handle(buff, this);
             }
 
@@ -127,6 +117,26 @@ public class ServerHandler {
             }
             packetsToSend.clear();
         }
+    }
+
+    private void handleUnknown(ByteBuffer buff, int type, int len) {
+        Client.getLogger().finer("Unknown packet!");
+        Client.getLogger().finer("0x" + Integer.toHexString(type) + "(" + type + ") | " + len);
+        if (len > 100) {
+            Client.getLogger().finer("Too big, won't capture");
+        } else {
+            Client.getLogger().finer("----------------------------");
+            for (int i = buff.position(); i < buff.limit(); i++) {
+                Client.getLogger().finer("" + (buff.get(i) & 0xFF));
+            }
+            Client.getLogger().finer("----------------------------");
+        }
+    }
+
+    private void logReceivedPacket(ReceivingPacket rPacket, int type, int len) {
+        Client.getLogger().finest("Received packet, type " + rPacket.getClass().getSimpleName()
+                + (rPacket.getClass().getSimpleName().equals(TrashPacket.class.getSimpleName()) ? "(" + type + ")" : "")
+                + ", hex 0x" + Integer.toHexString(type) + " len " + len);
     }
 
     private boolean handleLogin() throws IOException {
@@ -272,6 +282,7 @@ public class ServerHandler {
         packets.put(26, new Status26());
         packets.put(27, trashPacket); //Attach Entity
         packets.put(28, trashPacket); //Entity Metadata
+        packets.put(29, trashPacket); //Entity Effect
         packets.put(31, new Experience31());
         packets.put(32, trashPacket); //Entity Properties
         packets.put(33, trashPacket); //Multi Block Change
@@ -292,12 +303,17 @@ public class ServerHandler {
         packets.put(56, new PlayerListItem56());
         packets.put(57, new PlayerAbilities57());
         packets.put(59, trashPacket); //Scoreboards
+        packets.put(60, trashPacket); //Scoreboards (update)
         packets.put(61, trashPacket); //Scoreboards
         packets.put(62, trashPacket); //Teams
         packets.put(63, new PluginMessage63());
         packets.put(64, new Disconnect00());
-        packets.put(65, trashPacket); //Server difficulty
+        packets.put(65, trashPacket); //Server difficultystop
+
         packets.put(68, trashPacket); //Worldborder
+        packets.put(69, trashPacket); //Title
+        packets.put(70, new SetCompression70());
+        packets.put(71, trashPacket); //Player list header/footer
     }
 
     public Logger getLogger() {

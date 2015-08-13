@@ -21,7 +21,11 @@ public class Chat02 extends ReceivingPacket {
     public void handle(ByteBuffer buff, ServerHandler handler) {
         try {
             String jsonString = readString(buff);
-            JSONObject chat = (JSONObject) parser.parse(jsonString);
+            Object object = parser.parse(jsonString);
+            if (!(object instanceof JSONObject)) {
+                object = new JSONObject(); //empty line (I guess?)
+            }
+            JSONObject chat = (JSONObject) object;
             handleChat(handler, chat);
         } catch (ParseException e) {
             e.printStackTrace();

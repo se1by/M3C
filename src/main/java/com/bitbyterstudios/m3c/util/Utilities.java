@@ -11,8 +11,8 @@ import java.util.zip.Inflater;
 
 public class Utilities {
 
-    public static byte getBit(byte toCheck, int position) {
-        return (byte) ((toCheck >> position) & 1);
+    public static boolean getBit(byte toCheck, int position) {
+        return (toCheck >> position & 1) == 1;
     }
 
     public static int readVarInt(ByteBuffer buff) {

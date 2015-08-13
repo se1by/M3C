@@ -1,5 +1,6 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
+import com.bitbyterstudios.m3c.Client;
 import com.bitbyterstudios.m3c.ServerHandler;
 
 import java.nio.ByteBuffer;
@@ -12,6 +13,6 @@ public class SpawnPosition05 extends ReceivingPacket {
         int x = (int) (val >> 38);
         int y = (int) ((val >> 26) & 0xFFF);
         int z = (int) (val << 38 >> 38);
-        System.out.println("We'll spawn at x=" + x + ", y=" + y + ", z=" + z);
+        Client.getLogger().info("We'll spawn at x=" + x + ", y=" + y + ", z=" + z);
     }
 }
