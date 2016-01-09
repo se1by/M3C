@@ -1,7 +1,7 @@
 package com.bitbyterstudios.m3c.util;
 
-import com.bitbyterstudios.m3c.packets.receiving.PlayerPositionLook08;
-import com.bitbyterstudios.m3c.packets.sending.PlayerPositionLook06;
+import com.bitbyterstudios.m3c.packet_handler.receiving.PlayerPositionLook08;
+import com.bitbyterstudios.m3c.packet_handler.sending.PlayerPositionLook06;
 
 public class Location {
     private double x;

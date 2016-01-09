@@ -1,5 +1,6 @@
 package com.bitbyterstudios.m3c;
 
+import com.bitbyterstudios.m3c.plugin.Listener;
 import com.bitbyterstudios.m3c.plugin.PluginManager;
 import com.bitbyterstudios.m3c.util.LogFormatter;
 import org.yaml.snakeyaml.Yaml;
@@ -82,6 +83,10 @@ public class Client {
         getLogger().info(msg);
     }
 
+    public void registerListener(Listener listener) {
+
+    }
+
     public static Logger getLogger() {
         return logger;
     }
@@ -135,5 +140,9 @@ public class Client {
             e.printStackTrace();
         }
         new Client().start();
+    }
+
+    public PluginManager getPluginManager() {
+        return pluginManager;
     }
 }

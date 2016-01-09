@@ -4,6 +4,8 @@ import com.google.common.io.ByteArrayDataOutput;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
@@ -64,6 +66,15 @@ public class Utilities {
         return i;
     }
 
+    public static ByteBuffer clone(ByteBuffer original) {
+        ByteBuffer clone = ByteBuffer.allocate(original.capacity());
+        original.rewind();//copy from the beginning
+        clone.put(original);
+        original.rewind();
+        clone.flip();
+        return clone;
+    }
+
     public static byte[] compress(byte[] data) {
         Deflater deflater = new Deflater();
         deflater.setInput(data);
@@ -95,6 +106,19 @@ public class Utilities {
         }
         outputStream.close();
         return outputStream.toByteArray();
+    }
+
+    public static Class getGenericType(Class clazz) {
+        Type[] genericInterfaces = clazz.getGenericInterfaces();
+        for (Type genericInterface : genericInterfaces) {
+            if (genericInterface instanceof ParameterizedType) {
+                Type[] genericTypes = ((ParameterizedType) genericInterface).getActualTypeArguments();
+                for (Type t : genericTypes) {
+                    return ((Class) t);
+                }
+            }
+        }
+        return null;
     }
 
 }

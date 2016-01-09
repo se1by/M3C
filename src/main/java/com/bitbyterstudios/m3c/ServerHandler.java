@@ -1,11 +1,11 @@
 
 package com.bitbyterstudios.m3c;
 
-import com.bitbyterstudios.m3c.packets.receiving.*;
-import com.bitbyterstudios.m3c.packets.sending.EncryptionResponse01;
-import com.bitbyterstudios.m3c.packets.sending.HandShake00;
-import com.bitbyterstudios.m3c.packets.sending.LoginStart00;
-import com.bitbyterstudios.m3c.packets.sending.SendingPacket;
+import com.bitbyterstudios.m3c.packet_handler.receiving.*;
+import com.bitbyterstudios.m3c.packet_handler.sending.EncryptionResponse01;
+import com.bitbyterstudios.m3c.packet_handler.sending.HandShake00;
+import com.bitbyterstudios.m3c.packet_handler.sending.LoginStart00;
+import com.bitbyterstudios.m3c.packet_handler.sending.SendingPacket;
 import com.bitbyterstudios.m3c.util.CryptoHelper;
 import com.bitbyterstudios.m3c.util.Utilities;
 
@@ -72,24 +72,24 @@ public class ServerHandler {
             int len;
 
             if (compressionThreshold > 0) {
-                int plen = readVarInt(in); //packet length
+                int packet_length = readVarInt(in); //packet length
                 len = readVarInt(in); //length of uncompressed
-                plen -= Utilities.getVarIntWidth(len);
+                packet_length -= Utilities.getVarIntWidth(len);
 
-                byte[] raw = new byte[plen];
-                in.readFully(raw);
+                byte[] raw_packet = new byte[packet_length];
+                in.readFully(raw_packet);
 
                 if (len > 0) {
                     try {
-                        buff = ByteBuffer.wrap(Utilities.decompress(raw));
+                        buff = ByteBuffer.wrap(Utilities.decompress(raw_packet));
                     } catch (DataFormatException e) {
                         e.printStackTrace();
                         continue;
                     }
                 } else {
-                    buff = ByteBuffer.wrap(raw);
+                    buff = ByteBuffer.wrap(raw_packet);
                     //let's "fix" len for debug output below
-                    len = plen - 1;
+                    len = packet_length - 1;
                 }
             } else {
                 len = readVarInt(in);
@@ -108,6 +108,7 @@ public class ServerHandler {
                 unknown++;
             } else {
                 logReceivedPacket(rPacket, type, len);
+                buff = getClient().getPluginManager().callListeners(rPacket, buff);
                 rPacket.handle(buff, this);
             }
 
@@ -288,6 +289,7 @@ public class ServerHandler {
         packets.put(33, trashPacket); //Multi Block Change
         packets.put(34, trashPacket); //Multi Block Change
         packets.put(35, trashPacket); //Block Change, not important for now
+        packets.put(36, trashPacket); //Block Action
         packets.put(38, trashPacket); //Map bulk
         packets.put(40, trashPacket); //Effect
         packets.put(41, new SoundEffect41()); //Sound Effect
