@@ -1,5 +1,8 @@
 *.iml
 .idea/
 *.log
+*.log.*
 target/
 m3c.yml
+*.jar
+dependency-reduced-pom.xml

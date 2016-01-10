@@ -2,12 +2,25 @@
 package com.bitbyterstudios.m3c;
 
 import com.bitbyterstudios.m3c.packet_handler.receiving.*;
+import com.bitbyterstudios.m3c.packet_handler.receiving.ReceivingPacket;
 import com.bitbyterstudios.m3c.packet_handler.sending.EncryptionResponse01;
 import com.bitbyterstudios.m3c.packet_handler.sending.HandShake00;
 import com.bitbyterstudios.m3c.packet_handler.sending.LoginStart00;
-import com.bitbyterstudios.m3c.packet_handler.sending.SendingPacket;
+import com.bitbyterstudios.m3c.packets.receiving.*;
+import com.bitbyterstudios.m3c.packets.receiving.Chat02;
+import com.bitbyterstudios.m3c.packets.receiving.Health06;
+import com.bitbyterstudios.m3c.packets.receiving.HeldItemChange09;
+import com.bitbyterstudios.m3c.packets.receiving.JoinGame01;
+import com.bitbyterstudios.m3c.packets.receiving.KeepAlive00;
+import com.bitbyterstudios.m3c.packets.receiving.PlayerPositionLook08;
+import com.bitbyterstudios.m3c.packets.receiving.Respawn07;
+import com.bitbyterstudios.m3c.packets.receiving.SpawnPosition05;
+import com.bitbyterstudios.m3c.packets.receiving.Time03;
+import com.bitbyterstudios.m3c.packets.sending.SendingPacket;
 import com.bitbyterstudios.m3c.util.CryptoHelper;
 import com.bitbyterstudios.m3c.util.Utilities;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 
 import javax.crypto.SecretKey;
 import java.io.BufferedOutputStream;
@@ -32,6 +45,7 @@ public class ServerHandler {
 
     private HashMap<Integer, ReceivingPacket> login;
     private HashMap<Integer, ReceivingPacket> packets;
+    private HashMap<Integer, Class<? extends com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket>> newPackets;
     private Collection<SendingPacket> packetsToSend;
 
     private int compressionThreshold;
@@ -46,7 +60,7 @@ public class ServerHandler {
             socket = new Socket(host, port);
             out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
-            packetsToSend = new ArrayList<SendingPacket>();
+            packetsToSend = new ArrayList<>();
             loadPackets();
         } catch (IOException e) {
             e.printStackTrace();
@@ -108,13 +122,21 @@ public class ServerHandler {
                 unknown++;
             } else {
                 logReceivedPacket(rPacket, type, len);
+                // Hacky and just for testing
+                if (type == 0x02) {
+                    Chat02 chat
+                            = new Chat02();
+                    chat.handle(buff, this);
+                    System.out.println(chat.getRawJson());
+                }
+                // Now I just got to implement all packets
                 buff = getClient().getPluginManager().callListeners(rPacket, buff);
                 rPacket.handle(buff, this);
             }
 
             for (SendingPacket packet : packetsToSend) {
                 Client.getLogger().finest("sending packet " + packet.getClass().getSimpleName());
-                packet.send(out, compressionThreshold);
+                send(packet);
             }
             packetsToSend.clear();
         }
@@ -248,34 +270,75 @@ public class ServerHandler {
         packetsToSend.add(packet);
     }
 
+    private void send(SendingPacket packet) throws IOException {
+        ByteBuffer buffer = packet.getBuffer();
+        ByteArrayDataOutput buff2 = ByteStreams.newDataOutput();
+
+        if (compressionThreshold > 0) {
+            if (buffer.array().length > compressionThreshold) {
+                Utilities.writeVarInt(buff2, buffer.array().length);
+                buff2.write(Utilities.compress(buffer.array()));
+            } else {
+                buff2.write(0);
+                buff2.write(buffer.array());
+            }
+        } else {
+            buff2.write(buffer.array());
+        }
+
+        ByteArrayDataOutput buffer3 = ByteStreams.newDataOutput();
+        Utilities.writeVarInt(buffer3, buff2.toByteArray().length);
+        buffer3.write(buff2.toByteArray());
+        out.write(buffer3.toByteArray());
+        out.flush();
+    }
+
     private void loadPackets() {
-        login = new HashMap<Integer, ReceivingPacket>();
+        login = new HashMap<>();
         login.put(0, new Disconnect00());
         login.put(1, new EncryptionRequest01());
         login.put(2, new LoginSuccess02());
         login.put(0x03, new SetCompression03());
 
+        newPackets = new HashMap<>();
+        newPackets.put(0x00, KeepAlive00.class);
+        newPackets.put(0x01, JoinGame01.class);
+        newPackets.put(0x02, Chat02.class);
+        newPackets.put(0x03, Time03.class);
+        newPackets.put(0x04, EntityEquipment04.class);
+        newPackets.put(0x05, SpawnPosition05.class);
+        newPackets.put(0x06, Health06.class);
+        newPackets.put(0x07, Respawn07.class);
+        newPackets.put(0x08, PlayerPositionLook08.class);
+        newPackets.put(0x09, HeldItemChange09.class);
+        newPackets.put(0x0A, UseBed0A.class);
+        newPackets.put(0x0B, Animation0B.class);
+        newPackets.put(0x0C, SpawnPlayer0C.class);
+        newPackets.put(0x0D, CollectItem0D.class);
+        newPackets.put(0x0E, SpawnObject0E.class);
+        newPackets.put(0x0F, SpawnMob0F.class);
+        newPackets.put(0x10, SpawnPainting10.class);
+        newPackets.put(0x11, SpawnExperienceOrbs11.class);
+        newPackets.put(0x12, EntityVelocity12.class);
+        newPackets.put(0x13, DestroyEntity13.class);
+        newPackets.put(0x14, Entity14.class);
+        newPackets.put(0x15, EntityRelativeMove15.class);
+        newPackets.put(0x16, EntityLook16.class);
+        newPackets.put(0x17, EntityLookAndRelativeMove17.class);
+        newPackets.put(0x18, EntityTeleport18.class);
+        newPackets.put(0x19, EntityHeadLook19.class);
+        newPackets.put(0x1A, EntityStatus1A.class);
+        newPackets.put(0x1B, AttachEntity1B.class);
+        newPackets.put(0x1C, EntityMetadata1C.class);
+        newPackets.put(0x1D, EntityEffect1D.class);
+        newPackets.put(0x1E, RemoveEntityEffect1E.class);
+        newPackets.put(0x1F, SetExperience1F.class);
+        newPackets.put(0x20, EntityProperties20.class);
+        newPackets.put(0x21, ChunkData21.class);
+        newPackets.put(0x22, MultiBlockChange22.class);
 
         TrashPacket trashPacket = new TrashPacket();
-        packets = new HashMap<Integer, ReceivingPacket>();
-        packets.put(0, new KeepAlive00());
-        packets.put(1, new JoinGame01());
-        packets.put(2, new Chat02());
-        packets.put(3, new Time03());
-        packets.put(4, trashPacket); //Entity Equipment
-        packets.put(5, new SpawnPosition05());
-        packets.put(6, new Health06());
-        packets.put(7, new Respawn07());
-        packets.put(8, new PlayerPositionLook08());
-        packets.put(9, new HeldItemChange09());
-        packets.put(11, trashPacket); //Animation
-        packets.put(12, trashPacket); //Player Spawn (visible range)
-        packets.put(13, trashPacket); //Collect Item
-        packets.put(14, trashPacket); //Object(Vehicle) Spawn
-        packets.put(15, trashPacket); //Entity Spawn (should add that later)
-        packets.put(18, trashPacket); //Entity Velocity
-        packets.put(19, trashPacket); //Entity Destroy
-        packets.put(21, trashPacket); //Entity Move (relative, max 4 blocks)
+        packets = new HashMap<>();
         packets.put(22, trashPacket); //Entity Look
         packets.put(23, trashPacket); //Entity Look & Relative Move
         packets.put(24, trashPacket); //Entity Teleport (move > 4 blocks)
