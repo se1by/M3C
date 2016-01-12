@@ -1,5 +1,7 @@
 package com.bitbyterstudios.m3c.packets.sending;
 
+import com.bitbyterstudios.m3c.util.Utilities;
+
 import java.nio.ByteBuffer;
 
 public class KeepAlive00 extends SendingPacket {
@@ -14,7 +16,7 @@ public class KeepAlive00 extends SendingPacket {
 
     @Override
     public ByteBuffer getBuffer() {
-        ByteBuffer buffer = ByteBuffer.allocate(4);
+        ByteBuffer buffer = ByteBuffer.allocate(Utilities.getVarIntWidth(id));
         writeVarInt(buffer, id);
         return buffer;
     }

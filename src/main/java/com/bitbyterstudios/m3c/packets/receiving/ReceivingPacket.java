@@ -82,4 +82,19 @@ public abstract class ReceivingPacket {
 
         return i;
     }
+
+    public static long readVarLong(ByteBuffer buff) {
+        long i = 0;
+        int j = 0;
+        while (true) {
+            int k = buff.get();
+
+            i |= (k & 0x7F) << j++ * 7;
+            if (j > 10) throw new RuntimeException("VarInt too big");
+
+            if ((k & 0x80) != 128) break; //MSB not set? 0x80 = 1000 0000(b)
+        }
+
+        return i;
+    }
 }

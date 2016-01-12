@@ -108,6 +108,13 @@ public class Utilities {
         return outputStream.toByteArray();
     }
 
+    public static int[] positionFromLong(long val) {
+        int x = (int) (val >> 38);
+        int y = (int) ((val >> 26) & 0xFFF);
+        int z = (int) (val << 38 >> 38);
+        return new int[] {x, y, z};
+    }
+
     public static Class getGenericType(Class clazz) {
         Type[] genericInterfaces = clazz.getGenericInterfaces();
         for (Type genericInterface : genericInterfaces) {

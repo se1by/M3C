@@ -44,8 +44,7 @@ public class ServerHandler {
     private ClientData data;
 
     private HashMap<Integer, ReceivingPacket> login;
-    private HashMap<Integer, ReceivingPacket> packets;
-    private HashMap<Integer, Class<? extends com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket>> newPackets;
+    private HashMap<Integer, Class<? extends com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket>> packets;
     private Collection<SendingPacket> packetsToSend;
 
     private int compressionThreshold;
@@ -113,25 +112,25 @@ public class ServerHandler {
             }
 
             int type = readVarInt(buff);
-            ReceivingPacket rPacket = packets.get(type);
-            if (rPacket == null) {
+            if (packets.get(type) == null) {
                 if (unknown > 3) {
                     return;
                 }
                 handleUnknown(buff, type, len);
                 unknown++;
             } else {
-                logReceivedPacket(rPacket, type, len);
-                // Hacky and just for testing
-                if (type == 0x02) {
-                    Chat02 chat
-                            = new Chat02();
-                    chat.handle(buff, this);
-                    System.out.println(chat.getRawJson());
+                logReceivedPacket(packets.get(type), type, len);
+
+                Class<? extends com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket> packet_class = packets.get(type);
+                com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket packet = null;
+                try {
+                    packet = packet_class.newInstance();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    e.printStackTrace();
                 }
-                // Now I just got to implement all packets
-                buff = getClient().getPluginManager().callListeners(rPacket, buff);
-                rPacket.handle(buff, this);
+
+                packet.handle(buff, this);
+                getClient().getPluginManager().callListeners(packet, this);
             }
 
             for (SendingPacket packet : packetsToSend) {
@@ -156,9 +155,8 @@ public class ServerHandler {
         }
     }
 
-    private void logReceivedPacket(ReceivingPacket rPacket, int type, int len) {
-        Client.getLogger().finest("Received packet, type " + rPacket.getClass().getSimpleName()
-                + (rPacket.getClass().getSimpleName().equals(TrashPacket.class.getSimpleName()) ? "(" + type + ")" : "")
+    private void logReceivedPacket(Class<? extends com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket> rPacket, int type, int len) {
+        Client.getLogger().finest("Received packet, type " + rPacket.getSimpleName() + "(" + type + ")"
                 + ", hex 0x" + Integer.toHexString(type) + " len " + len);
     }
 
@@ -300,85 +298,81 @@ public class ServerHandler {
         login.put(2, new LoginSuccess02());
         login.put(0x03, new SetCompression03());
 
-        newPackets = new HashMap<>();
-        newPackets.put(0x00, KeepAlive00.class);
-        newPackets.put(0x01, JoinGame01.class);
-        newPackets.put(0x02, Chat02.class);
-        newPackets.put(0x03, Time03.class);
-        newPackets.put(0x04, EntityEquipment04.class);
-        newPackets.put(0x05, SpawnPosition05.class);
-        newPackets.put(0x06, Health06.class);
-        newPackets.put(0x07, Respawn07.class);
-        newPackets.put(0x08, PlayerPositionLook08.class);
-        newPackets.put(0x09, HeldItemChange09.class);
-        newPackets.put(0x0A, UseBed0A.class);
-        newPackets.put(0x0B, Animation0B.class);
-        newPackets.put(0x0C, SpawnPlayer0C.class);
-        newPackets.put(0x0D, CollectItem0D.class);
-        newPackets.put(0x0E, SpawnObject0E.class);
-        newPackets.put(0x0F, SpawnMob0F.class);
-        newPackets.put(0x10, SpawnPainting10.class);
-        newPackets.put(0x11, SpawnExperienceOrbs11.class);
-        newPackets.put(0x12, EntityVelocity12.class);
-        newPackets.put(0x13, DestroyEntity13.class);
-        newPackets.put(0x14, Entity14.class);
-        newPackets.put(0x15, EntityRelativeMove15.class);
-        newPackets.put(0x16, EntityLook16.class);
-        newPackets.put(0x17, EntityLookAndRelativeMove17.class);
-        newPackets.put(0x18, EntityTeleport18.class);
-        newPackets.put(0x19, EntityHeadLook19.class);
-        newPackets.put(0x1A, EntityStatus1A.class);
-        newPackets.put(0x1B, AttachEntity1B.class);
-        newPackets.put(0x1C, EntityMetadata1C.class);
-        newPackets.put(0x1D, EntityEffect1D.class);
-        newPackets.put(0x1E, RemoveEntityEffect1E.class);
-        newPackets.put(0x1F, SetExperience1F.class);
-        newPackets.put(0x20, EntityProperties20.class);
-        newPackets.put(0x21, ChunkData21.class);
-        newPackets.put(0x22, MultiBlockChange22.class);
-
-        TrashPacket trashPacket = new TrashPacket();
         packets = new HashMap<>();
-        packets.put(22, trashPacket); //Entity Look
-        packets.put(23, trashPacket); //Entity Look & Relative Move
-        packets.put(24, trashPacket); //Entity Teleport (move > 4 blocks)
-        packets.put(25, trashPacket); //Entity Head Look
-        packets.put(26, new Status26());
-        packets.put(27, trashPacket); //Attach Entity
-        packets.put(28, trashPacket); //Entity Metadata
-        packets.put(29, trashPacket); //Entity Effect
-        packets.put(31, new Experience31());
-        packets.put(32, trashPacket); //Entity Properties
-        packets.put(33, trashPacket); //Multi Block Change
-        packets.put(34, trashPacket); //Multi Block Change
-        packets.put(35, trashPacket); //Block Change, not important for now
-        packets.put(36, trashPacket); //Block Action
-        packets.put(38, trashPacket); //Map bulk
-        packets.put(40, trashPacket); //Effect
-        packets.put(41, new SoundEffect41()); //Sound Effect
-        packets.put(42, trashPacket); //Particles
-        packets.put(43, trashPacket); //Gamestate Change (rain, credits)
-        packets.put(44, trashPacket); //Entity Metadata
-        packets.put(46, trashPacket); //Close window
-        packets.put(47, trashPacket); //Inventory
-        packets.put(48, trashPacket); //Inventory
-        packets.put(51, trashPacket); //Display Scoreboard
-        packets.put(53, trashPacket); //Block Entity Update
-        packets.put(55, new Statistic55());
-        packets.put(56, new PlayerListItem56());
-        packets.put(57, new PlayerAbilities57());
-        packets.put(59, trashPacket); //Scoreboards
-        packets.put(60, trashPacket); //Scoreboards (update)
-        packets.put(61, trashPacket); //Scoreboards
-        packets.put(62, trashPacket); //Teams
-        packets.put(63, new PluginMessage63());
-        packets.put(64, new Disconnect00());
-        packets.put(65, trashPacket); //Server difficultystop
-
-        packets.put(68, trashPacket); //Worldborder
-        packets.put(69, trashPacket); //Title
-        packets.put(70, new SetCompression70());
-        packets.put(71, trashPacket); //Player list header/footer
+        packets.put(0x00, KeepAlive00.class);
+        packets.put(0x01, JoinGame01.class);
+        packets.put(0x02, Chat02.class);
+        packets.put(0x03, Time03.class);
+        packets.put(0x04, EntityEquipment04.class);
+        packets.put(0x05, SpawnPosition05.class);
+        packets.put(0x06, Health06.class);
+        packets.put(0x07, Respawn07.class);
+        packets.put(0x08, PlayerPositionLook08.class);
+        packets.put(0x09, HeldItemChange09.class);
+        packets.put(0x0A, UseBed0A.class);
+        packets.put(0x0B, Animation0B.class);
+        packets.put(0x0C, SpawnPlayer0C.class);
+        packets.put(0x0D, CollectItem0D.class);
+        packets.put(0x0E, SpawnObject0E.class);
+        packets.put(0x0F, SpawnMob0F.class);
+        packets.put(0x10, SpawnPainting10.class);
+        packets.put(0x11, SpawnExperienceOrbs11.class);
+        packets.put(0x12, EntityVelocity12.class);
+        packets.put(0x13, DestroyEntity13.class);
+        packets.put(0x14, Entity14.class);
+        packets.put(0x15, EntityRelativeMove15.class);
+        packets.put(0x16, EntityLook16.class);
+        packets.put(0x17, EntityLookAndRelativeMove17.class);
+        packets.put(0x18, EntityTeleport18.class);
+        packets.put(0x19, EntityHeadLook19.class);
+        packets.put(0x1A, EntityStatus1A.class);
+        packets.put(0x1B, AttachEntity1B.class);
+        packets.put(0x1C, EntityMetadata1C.class);
+        packets.put(0x1D, EntityEffect1D.class);
+        packets.put(0x1E, RemoveEntityEffect1E.class);
+        packets.put(0x1F, SetExperience1F.class);
+        packets.put(0x20, EntityProperties20.class);
+        packets.put(0x21, ChunkData21.class);
+        packets.put(0x22, MultiBlockChange22.class);
+        packets.put(0x23, BlockChange23.class);
+        packets.put(0x24, BlockAction24.class);
+        packets.put(0x25, BlockBreak25.class);
+        packets.put(0x26, MapChunkBulk26.class);
+        packets.put(0x27, Explosion27.class);
+        packets.put(0x28, Effect28.class);
+        packets.put(0x29, SoundEffect29.class);
+        packets.put(0x2A, Particle2A.class);
+        packets.put(0x2B, ChangeGamestate2B.class);
+        packets.put(0x2C, SpawnGlobalEntity2C.class);
+        packets.put(0x2D, OpenWindow2D.class);
+        packets.put(0x2E, CloseWindow2E.class);
+        packets.put(0x2F, SetSlot2F.class);
+        packets.put(0x30, WindowItems30.class);
+        packets.put(0x31, WindowProperty31.class);
+        packets.put(0x32, ConfirmTransaction32.class);
+        packets.put(0x33, UpdateSign33.class);
+        packets.put(0x34, Map34.class);
+        packets.put(0x35, UpdateBlockEntity35.class);
+        packets.put(0x36, OpenSignEditor36.class);
+        packets.put(0x37, Statistics37.class);
+        packets.put(0x38, PlayerListItem38.class);
+        packets.put(0x39, PlayerAbilities39.class);
+        packets.put(0x3A, TabComplete3A.class);
+        packets.put(0x3B, ScoreboardObjective3B.class);
+        packets.put(0x3C, UpdateScore3C.class);
+        packets.put(0x3D, DisplayScoreboard3D.class);
+        packets.put(0x3E, Teams3E.class);
+        packets.put(0x3F, PluginMessage3F.class);
+        packets.put(0x40, Disconnect40.class);
+        packets.put(0x41, ServerDifficulty41.class);
+        packets.put(0x42, CombatEvent42.class);
+        packets.put(0x43, Camera43.class);
+        packets.put(0x44, WorldBorder44.class);
+        packets.put(0x45, Title45.class);
+        packets.put(0x46, SetCompression46.class);
+        packets.put(0x47, PlayerListHeaderAndFooter47.class);
+        packets.put(0x48, ResourcepackSend48.class);
+        packets.put(0x49, UpdateEntityNbt49.class);
     }
 
     public Logger getLogger() {

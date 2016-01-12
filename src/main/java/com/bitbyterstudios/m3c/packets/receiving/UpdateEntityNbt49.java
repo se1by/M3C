@@ -1,19 +1,20 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
-import com.bitbyterstudios.m3c.Client;
 import com.bitbyterstudios.m3c.ServerHandler;
 
 import java.nio.ByteBuffer;
 
-public class EntityHeadLook19 extends ReceivingPacket {
+public class UpdateEntityNbt49 extends ReceivingPacket {
     private int entityId;
-    private byte yaw;
+    private byte[] rawNbtTag;
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
         entityId = readVarInt(buff);
-        yaw = buff.get();
-        Client.getLogger().finest("EntityID " + entityId + ", new angle: " + (yaw * 360/255));
+        rawNbtTag = new byte[buff.remaining()];
+        for (int i = 0; buff.hasRemaining(); i++) {
+            rawNbtTag[i] = buff.get();
+        }
     }
 
     public int getEntityId() {
@@ -24,11 +25,11 @@ public class EntityHeadLook19 extends ReceivingPacket {
         this.entityId = entityId;
     }
 
-    public byte getYaw() {
-        return yaw;
+    public byte[] getRawNbtTag() {
+        return rawNbtTag;
     }
 
-    public void setYaw(byte yaw) {
-        this.yaw = yaw;
+    public void setRawNbtTag(byte[] rawNbtTag) {
+        this.rawNbtTag = rawNbtTag;
     }
 }

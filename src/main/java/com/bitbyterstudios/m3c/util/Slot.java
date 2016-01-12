@@ -48,6 +48,7 @@ public class Slot {
     }
 
     public static Slot fromByteBuffer(ByteBuffer buffer) {
+        if (!buffer.hasRemaining()) return null; // TODO: Hacky fix, FIX IT
         short itemId = buffer.getShort();
         if (itemId == -1) { // Empty slot
             return new Slot(itemId, (byte) 0, (short) 0, null);

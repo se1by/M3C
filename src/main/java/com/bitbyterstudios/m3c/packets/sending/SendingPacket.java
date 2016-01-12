@@ -9,6 +9,7 @@ public abstract class SendingPacket {
         while (true) {
             if ((paramInt & 0xFFFFFF80) == 0) {
                 buffer.put((byte) paramInt);
+                buffer.flip();
                 return;
             }
 

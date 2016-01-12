@@ -1,6 +1,5 @@
 package com.bitbyterstudios.m3c.util;
 
-import com.bitbyterstudios.m3c.packet_handler.receiving.PlayerPositionLook08;
 import com.bitbyterstudios.m3c.packet_handler.sending.PlayerPositionLook06;
 
 public class Location {
@@ -31,14 +30,14 @@ public class Location {
         return packet;
     }
 
-    public void updateFromPlayerPositionLook08(PlayerPositionLook08 packet) {
-        setX(packet.getX());
-        setY(packet.getY());
-        setZ(packet.getZ());
-        setYaw(packet.getYaw());
-        setPitch(packet.getPitch());
-        setOnGround(packet.isOnGround());
-    }
+//    public void updateFromPlayerPositionLook08(PlayerPositionLook08 packet) {
+//        setX(packet.getX());
+//        setY(packet.getY());
+//        setZ(packet.getZ());
+//        setYaw(packet.getYaw());
+//        setPitch(packet.getPitch());
+//        setOnGround(packet.isOnGround());
+//    }
 
     public double getX() {
         return x;

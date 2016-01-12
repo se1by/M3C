@@ -1,10 +1,10 @@
 package com.bitbyterstudios.m3c.plugin;
 
 import com.bitbyterstudios.m3c.Client;
-import com.bitbyterstudios.m3c.packet_handler.receiving.ReceivingPacket;
+import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket;
 
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,11 +60,10 @@ public class PluginManager {
     }
 
     @SuppressWarnings("unchecked")
-    public ByteBuffer callListeners(ReceivingPacket packet, ByteBuffer buffer) {
+    public void callListeners(ReceivingPacket packet, ServerHandler handler) {
         //for (Listener<? extends ReceivingPacket> listener : listeners.get(packet.getClass())) listener.handle(packet);
-        if (listeners.get(packet.getClass()) == null) return buffer;
+        if (listeners.get(packet.getClass()) == null) return;
         listeners.get(packet.getClass()).forEach((Listener listener1) ->
-                listener1.handle(buffer));
-        return buffer;
+                listener1.handle(packet, handler));
     }
 }

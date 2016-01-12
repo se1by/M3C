@@ -1,11 +1,17 @@
 package com.bitbyterstudios.m3c;
 
-import com.bitbyterstudios.m3c.plugin.Listener;
+import com.bitbyterstudios.m3c.listener.KeepAliveListener;
+import com.bitbyterstudios.m3c.listener.SetCompressionListener;
+import com.bitbyterstudios.m3c.packets.receiving.KeepAlive00;
+import com.bitbyterstudios.m3c.packets.receiving.SetCompression46;
 import com.bitbyterstudios.m3c.plugin.PluginManager;
 import com.bitbyterstudios.m3c.util.LogFormatter;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
+import java.io.Console;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Map;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -61,12 +67,15 @@ public class Client {
         if (server == null || server.isEmpty()) {
             server = "mc.hypixel.net";
         }
+        server = "85.25.198.198";
 
         if (port == 0) {
             port = 25565;
         }
 
         pluginManager.load();
+        pluginManager.addListener(KeepAlive00.class, new KeepAliveListener());
+        pluginManager.addListener(SetCompression46.class, new SetCompressionListener());
 
         getLogger().info("Authenticating...");
         ClientData data = ApiAccess.authenticate(user, pass);
@@ -81,10 +90,6 @@ public class Client {
     public void send(String msg) {
         //System.out.println(msg);
         getLogger().info(msg);
-    }
-
-    public void registerListener(Listener listener) {
-
     }
 
     public static Logger getLogger() {
