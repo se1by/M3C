@@ -278,9 +278,11 @@ public class ServerHandler {
                 buff2.write(Utilities.compress(buffer.array()));
             } else {
                 buff2.write(0);
+                Utilities.writeVarInt(buff2, packet.getType());
                 buff2.write(buffer.array());
             }
         } else {
+            Utilities.writeVarInt(buff2, packet.getType());
             buff2.write(buffer.array());
         }
 

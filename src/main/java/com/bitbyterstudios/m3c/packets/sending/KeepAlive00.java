@@ -21,6 +21,11 @@ public class KeepAlive00 extends SendingPacket {
         return buffer;
     }
 
+    @Override
+    public int getType() {
+        return 0x00;
+    }
+
     public int getId() {
         return id;
     }

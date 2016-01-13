@@ -5,11 +5,12 @@ import java.nio.ByteBuffer;
 public abstract class SendingPacket {
     public abstract ByteBuffer getBuffer();
 
+    public abstract int getType();
+
     public void writeVarInt(ByteBuffer buffer, int paramInt) {
         while (true) {
             if ((paramInt & 0xFFFFFF80) == 0) {
                 buffer.put((byte) paramInt);
-                buffer.flip();
                 return;
             }
 
