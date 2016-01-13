@@ -34,7 +34,7 @@ public class EntityStatus1A extends ReceivingPacket {
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
-        entityId = readVarInt(buff);
+        entityId = buff.getInt();
         status = buff.get();
     }
 
