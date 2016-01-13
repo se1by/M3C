@@ -67,7 +67,7 @@ public class Client {
         if (server == null || server.isEmpty()) {
             server = "mc.hypixel.net";
         }
-        server = "85.25.198.198";
+        server = "mc.hypixel.net";
 
         if (port == 0) {
             port = 25565;
