@@ -15,7 +15,7 @@ public class IntTag extends AbstractTag<Integer> {
     public static IntTag fromByteBuffer(ByteBuffer buffer, boolean named) {
         String name = null;
         if (named) {
-            name = Utilities.readStringFromByteBuffer(buffer);
+            name = Utilities.readShortPrefixedStringFromByteBuffer(buffer);
         }
         int value = buffer.getInt();
         return new IntTag(name, value);

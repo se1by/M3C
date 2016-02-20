@@ -18,7 +18,7 @@ public class ListTag extends AbstractTag<List<AbstractTag>> {
     public static ListTag fromByteBuffer(ByteBuffer buffer, boolean named) {
         String name = null;
         if (named) {
-            name = Utilities.readStringFromByteBuffer(buffer);
+            name = Utilities.readShortPrefixedStringFromByteBuffer(buffer);
         }
         byte type = buffer.get();
         int length = buffer.getInt();

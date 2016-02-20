@@ -15,7 +15,7 @@ public class ShortTag extends AbstractTag<Short> {
     public static ShortTag fromByteBuffer(ByteBuffer buffer, boolean named) {
         String name = null;
         if (named) {
-            name = Utilities.readStringFromByteBuffer(buffer);
+            name = Utilities.readShortPrefixedStringFromByteBuffer(buffer);
         }
         short value = buffer.getShort();
         return new ShortTag(name, value);

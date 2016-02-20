@@ -15,7 +15,7 @@ public class DoubleTag extends AbstractTag<Double> {
     public static DoubleTag fromByteBuffer(ByteBuffer buffer, boolean named) {
         String name = null;
         if (named) {
-            name = Utilities.readStringFromByteBuffer(buffer);
+            name = Utilities.readShortPrefixedStringFromByteBuffer(buffer);
         }
         double value = buffer.getDouble();
         return new DoubleTag(name, value);

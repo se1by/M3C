@@ -15,7 +15,7 @@ public class LongTag extends AbstractTag<Long> {
     public static LongTag fromByteBuffer(ByteBuffer buffer, boolean named) {
         String name = null;
         if (named) {
-            name = Utilities.readStringFromByteBuffer(buffer);
+            name = Utilities.readShortPrefixedStringFromByteBuffer(buffer);
         }
         long value = buffer.getLong();
         return new LongTag(name, value);

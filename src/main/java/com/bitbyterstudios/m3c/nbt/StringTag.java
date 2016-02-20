@@ -15,9 +15,9 @@ public class StringTag extends AbstractTag<String> {
     public static StringTag fromByteBuffer(ByteBuffer buffer, boolean named) {
         String name = null;
         if (named) {
-            name = Utilities.readStringFromByteBuffer(buffer);
+            name = Utilities.readShortPrefixedStringFromByteBuffer(buffer);
         }
-        String value = Utilities.readStringFromByteBuffer(buffer);
+        String value = Utilities.readShortPrefixedStringFromByteBuffer(buffer);
         return new StringTag(name, value);
     }
 }

@@ -15,7 +15,7 @@ public class IntArrayTag extends AbstractTag<int[]> {
     public static IntArrayTag fromByteBuffer(ByteBuffer buffer, boolean named) {
         String name = null;
         if (named) {
-            name = Utilities.readStringFromByteBuffer(buffer);
+            name = Utilities.readShortPrefixedStringFromByteBuffer(buffer);
         }
         int length = buffer.getInt();
         int[] value = new int[length];

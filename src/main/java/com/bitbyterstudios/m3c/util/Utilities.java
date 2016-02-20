@@ -66,8 +66,15 @@ public class Utilities {
         return i;
     }
 
-    public static String readStringFromByteBuffer(ByteBuffer buffer) {
+    public static String readShortPrefixedStringFromByteBuffer(ByteBuffer buffer) {
         short length = buffer.getShort();
+        byte[] stringBytes = new byte[length];
+        buffer.get(stringBytes);
+        return new String(stringBytes);
+    }
+
+    public static String readVarIntPrefixedStringFromByteBuffer(ByteBuffer buffer) {
+        int length = readVarInt(buffer);
         byte[] stringBytes = new byte[length];
         buffer.get(stringBytes);
         return new String(stringBytes);

@@ -17,7 +17,7 @@ public class CompoundTag extends AbstractTag<List<AbstractTag>> {
     public static CompoundTag fromByteBuffer(ByteBuffer buffer, boolean named) {
         String name = null;
         if (named) {
-            name = Utilities.readStringFromByteBuffer(buffer);
+            name = Utilities.readShortPrefixedStringFromByteBuffer(buffer);
         }
         List<AbstractTag> value = new ArrayList<>();
         value.add(AbstractTag.fromByteBuffer(buffer, true));
