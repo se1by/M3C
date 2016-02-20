@@ -1,20 +1,19 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
 import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.nbt.AbstractTag;
 
 import java.nio.ByteBuffer;
 
 public class UpdateEntityNbt49 extends ReceivingPacket {
     private int entityId;
-    private byte[] rawNbtTag;
+    private AbstractTag nbtTag;
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
         entityId = readVarInt(buff);
-        rawNbtTag = new byte[buff.remaining()];
-        for (int i = 0; buff.hasRemaining(); i++) {
-            rawNbtTag[i] = buff.get();
-        }
+        nbtTag = AbstractTag.fromByteBuffer(buff, true);
+        System.out.println(nbtTag.getName());
     }
 
     public int getEntityId() {
@@ -25,11 +24,11 @@ public class UpdateEntityNbt49 extends ReceivingPacket {
         this.entityId = entityId;
     }
 
-    public byte[] getRawNbtTag() {
-        return rawNbtTag;
+    public AbstractTag getNbtTag() {
+        return nbtTag;
     }
 
-    public void setRawNbtTag(byte[] rawNbtTag) {
-        this.rawNbtTag = rawNbtTag;
+    public void setNbtTag(AbstractTag nbtTag) {
+        this.nbtTag = nbtTag;
     }
 }

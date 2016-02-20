@@ -1,7 +1,7 @@
-- nbt
+- nbt	✓
 - entity metadata
 - entity properties
 - chunk data
-- fix slots class (loading from buffer)
+- fix slots class (loading from buffer)	✓
 - map data
 - playerlistitem data

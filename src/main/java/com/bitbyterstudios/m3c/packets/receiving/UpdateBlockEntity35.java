@@ -1,6 +1,7 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
 import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.nbt.AbstractTag;
 import com.bitbyterstudios.m3c.util.Utilities;
 
 import java.nio.ByteBuffer;
@@ -10,7 +11,7 @@ public class UpdateBlockEntity35 extends ReceivingPacket {
     private int y;
     private int z;
     private byte action;
-    private byte[] nbtData;
+    private AbstractTag nbtTag;
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
@@ -19,10 +20,7 @@ public class UpdateBlockEntity35 extends ReceivingPacket {
         y = position[1];
         z = position[2];
         action = (byte) (buff.get() & 0xFF);
-        nbtData = new byte[buff.remaining()];
-        for (int i = 0;buff.hasRemaining(); i++) {
-            nbtData[i] = buff.get();
-        }
+        nbtTag = AbstractTag.fromByteBuffer(buff, true);
     }
 
     public int getX() {
@@ -57,11 +55,11 @@ public class UpdateBlockEntity35 extends ReceivingPacket {
         this.action = action;
     }
 
-    public byte[] getNbtData() {
-        return nbtData;
+    public AbstractTag getNbtTag() {
+        return nbtTag;
     }
 
-    public void setNbtData(byte[] nbtData) {
-        this.nbtData = nbtData;
+    public void setNbtTag(AbstractTag nbtTag) {
+        this.nbtTag = nbtTag;
     }
 }
