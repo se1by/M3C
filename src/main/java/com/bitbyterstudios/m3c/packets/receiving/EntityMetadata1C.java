@@ -1,20 +1,19 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
 import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.util.EntityMetadata;
 
 import java.nio.ByteBuffer;
 
 public class EntityMetadata1C extends ReceivingPacket {
     private int entityId;
-    private byte[] rawMetadata;
+    private EntityMetadata metadata;
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
         entityId = readVarInt(buff);
-        rawMetadata = new byte[buff.remaining()];
-        for (int i = 0; buff.hasRemaining(); i++) {
-            rawMetadata[i] = buff.get();
-        }
+        metadata = EntityMetadata.fromByteBuffer(buff);
+        System.out.println(metadata.toString());
     }
 
     public int getEntityId() {
@@ -25,11 +24,11 @@ public class EntityMetadata1C extends ReceivingPacket {
         this.entityId = entityId;
     }
 
-    public byte[] getRawMetadata() {
-        return rawMetadata;
+    public EntityMetadata getMetadata() {
+        return metadata;
     }
 
-    public void setRawMetadata(byte[] rawMetadata) {
-        this.rawMetadata = rawMetadata;
+    public void setMetadata(EntityMetadata metadata) {
+        this.metadata = metadata;
     }
 }

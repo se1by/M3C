@@ -1,6 +1,7 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
 import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.util.EntityMetadata;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;
@@ -14,7 +15,7 @@ public class SpawnPlayer0C extends ReceivingPacket {
     private byte yaw;
     private byte pitch;
     private short currentItem;
-    private byte[] metadata;
+    private EntityMetadata metadata;
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
@@ -26,10 +27,7 @@ public class SpawnPlayer0C extends ReceivingPacket {
         yaw = buff.get();
         pitch = buff.get();
         currentItem = buff.getShort();
-        metadata = new byte[buff.remaining()];
-        for (int i = 0; buff.hasRemaining(); i++) {
-            metadata[i] = buff.get();
-        }
+        metadata = EntityMetadata.fromByteBuffer(buff);
     }
 
     public int getEntityId() {
@@ -96,11 +94,11 @@ public class SpawnPlayer0C extends ReceivingPacket {
         this.currentItem = currentItem;
     }
 
-    public byte[] getMetadata() {
+    public EntityMetadata getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(byte[] metadata) {
+    public void setMetadata(EntityMetadata metadata) {
         this.metadata = metadata;
     }
 }

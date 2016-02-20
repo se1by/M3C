@@ -1,6 +1,7 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
 import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.util.EntityMetadata;
 
 import java.nio.ByteBuffer;
 
@@ -15,7 +16,7 @@ public class SpawnMob0F extends ReceivingPacket {
     private short velocityX;
     private short velocityY;
     private short velocityZ;
-    private byte[] raw_metadata;
+    private EntityMetadata metadata;
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
@@ -29,10 +30,7 @@ public class SpawnMob0F extends ReceivingPacket {
         velocityX = buff.getShort();
         velocityY = buff.getShort();
         velocityZ = buff.getShort();
-        raw_metadata = new byte[buff.remaining()];
-        for (int i = 0; buff.hasRemaining(); i++) {
-            raw_metadata[i] = buff.get();
-        }
+        metadata = EntityMetadata.fromByteBuffer(buff);
     }
 
     public int getEntityId() {
@@ -115,11 +113,11 @@ public class SpawnMob0F extends ReceivingPacket {
         this.velocityZ = velocityZ;
     }
 
-    public byte[] getRaw_metadata() {
-        return raw_metadata;
+    public EntityMetadata getMetadata() {
+        return metadata;
     }
 
-    public void setRaw_metadata(byte[] raw_metadata) {
-        this.raw_metadata = raw_metadata;
+    public void setMetadata(EntityMetadata metadata) {
+        this.metadata = metadata;
     }
 }
