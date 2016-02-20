@@ -13,7 +13,6 @@ public class EntityMetadata1C extends ReceivingPacket {
     public void handle(ByteBuffer buff, ServerHandler handler) {
         entityId = readVarInt(buff);
         metadata = EntityMetadata.fromByteBuffer(buff);
-        System.out.println(metadata.toString());
     }
 
     public int getEntityId() {
