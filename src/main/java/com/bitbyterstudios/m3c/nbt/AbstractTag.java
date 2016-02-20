@@ -31,36 +31,36 @@ public abstract class AbstractTag<T> {
         this.value = value;
     }
 
-    public static AbstractTag fromByteBuffer(ByteBuffer buffer) {
-        return fromByteBuffer(buffer, buffer.get());
+    public static AbstractTag fromByteBuffer(ByteBuffer buffer, boolean named) {
+        return fromByteBuffer(buffer, buffer.get(), named);
     }
 
-    public static AbstractTag fromByteBuffer(ByteBuffer buffer, byte type) {
+    public static AbstractTag fromByteBuffer(ByteBuffer buffer, byte type, boolean named) {
         switch (type) {
             case 0:
                 return new EndTag();
             case 1:
-                return ByteTag.fromByteBuffer(buffer);
+                return ByteTag.fromByteBuffer(buffer, named);
             case 2:
-                return ShortTag.fromByteBuffer(buffer);
+                return ShortTag.fromByteBuffer(buffer, named);
             case 3:
-                return IntTag.fromByteBuffer(buffer);
+                return IntTag.fromByteBuffer(buffer, named);
             case 4:
-                return LongTag.fromByteBuffer(buffer);
+                return LongTag.fromByteBuffer(buffer, named);
             case 5:
-                return FloatTag.fromByteBuffer(buffer);
+                return FloatTag.fromByteBuffer(buffer, named);
             case 6:
-                return DoubleTag.fromByteBuffer(buffer);
+                return DoubleTag.fromByteBuffer(buffer, named);
             case 7:
-                return ByteArrayTag.fromByteBuffer(buffer);
+                return ByteArrayTag.fromByteBuffer(buffer, named);
             case 8:
-                return StringTag.fromByteBuffer(buffer);
+                return StringTag.fromByteBuffer(buffer, named);
             case 9:
-                return ListTag.fromByteBuffer(buffer);
+                return ListTag.fromByteBuffer(buffer, named);
             case 10:
-                return CompoundTag.fromByteBuffer(buffer);
+                return CompoundTag.fromByteBuffer(buffer, named);
             case 11:
-                return IntArrayTag.fromByteBuffer(buffer);
+                return IntArrayTag.fromByteBuffer(buffer, named);
             default:
                 throw new IllegalArgumentException("Unknown nbt type " + type + "!");
         }

@@ -12,8 +12,11 @@ public class IntTag extends AbstractTag<Integer> {
         setValue(value);
     }
 
-    public static IntTag fromByteBuffer(ByteBuffer buffer) {
-        String name = Utilities.readStringFromByteBuffer(buffer);
+    public static IntTag fromByteBuffer(ByteBuffer buffer, boolean named) {
+        String name = null;
+        if (named) {
+            name = Utilities.readStringFromByteBuffer(buffer);
+        }
         int value = buffer.getInt();
         return new IntTag(name, value);
     }

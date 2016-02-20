@@ -12,8 +12,11 @@ public class DoubleTag extends AbstractTag<Double> {
         setValue(value);
     }
 
-    public static DoubleTag fromByteBuffer(ByteBuffer buffer) {
-        String name = Utilities.readStringFromByteBuffer(buffer);
+    public static DoubleTag fromByteBuffer(ByteBuffer buffer, boolean named) {
+        String name = null;
+        if (named) {
+            name = Utilities.readStringFromByteBuffer(buffer);
+        }
         double value = buffer.getDouble();
         return new DoubleTag(name, value);
     }

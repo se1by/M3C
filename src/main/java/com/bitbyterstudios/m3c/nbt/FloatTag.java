@@ -12,8 +12,11 @@ public class FloatTag extends AbstractTag<Float> {
         setValue(value);
     }
 
-    public static FloatTag fromByteBuffer(ByteBuffer buffer) {
-        String name = Utilities.readStringFromByteBuffer(buffer);
+    public static FloatTag fromByteBuffer(ByteBuffer buffer, boolean named) {
+        String name = null;
+        if (named) {
+            name = Utilities.readStringFromByteBuffer(buffer);
+        }
         float value = buffer.getFloat();
         return new FloatTag(name, value);
     }

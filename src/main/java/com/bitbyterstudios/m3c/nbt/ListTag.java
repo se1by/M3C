@@ -15,13 +15,16 @@ public class ListTag extends AbstractTag<List<AbstractTag>> {
         setValue(value);
     }
 
-    public static ListTag fromByteBuffer(ByteBuffer buffer) {
-        String name = Utilities.readStringFromByteBuffer(buffer);
+    public static ListTag fromByteBuffer(ByteBuffer buffer, boolean named) {
+        String name = null;
+        if (named) {
+            name = Utilities.readStringFromByteBuffer(buffer);
+        }
         byte type = buffer.get();
         int length = buffer.getInt();
         List<AbstractTag> value = new ArrayList<>();
         for (; length > 0; length--) {
-            value.add(AbstractTag.fromByteBuffer(buffer, type));
+            value.add(AbstractTag.fromByteBuffer(buffer, type, false));
         }
         return new ListTag(name, value);
     }

@@ -14,12 +14,15 @@ public class CompoundTag extends AbstractTag<List<AbstractTag>> {
         setValue(value);
     }
 
-    public static CompoundTag fromByteBuffer(ByteBuffer buffer) {
-        String name = Utilities.readStringFromByteBuffer(buffer);
+    public static CompoundTag fromByteBuffer(ByteBuffer buffer, boolean named) {
+        String name = null;
+        if (named) {
+            name = Utilities.readStringFromByteBuffer(buffer);
+        }
         List<AbstractTag> value = new ArrayList<>();
-        value.add(AbstractTag.fromByteBuffer(buffer));
+        value.add(AbstractTag.fromByteBuffer(buffer, true));
         while (value.get(value.size()-1).getType() != 0) {
-            value.add(AbstractTag.fromByteBuffer(buffer));
+            value.add(AbstractTag.fromByteBuffer(buffer, true));
         }
         return new CompoundTag(name, value);
     }

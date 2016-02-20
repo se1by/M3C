@@ -12,8 +12,11 @@ public class ByteTag extends AbstractTag<Byte> {
         setValue(value);
     }
 
-    public static ByteTag fromByteBuffer(ByteBuffer buffer) {
-        String name = Utilities.readStringFromByteBuffer(buffer);
+    public static ByteTag fromByteBuffer(ByteBuffer buffer, boolean named) {
+        String name = null;
+        if (named) {
+            name = Utilities.readStringFromByteBuffer(buffer);
+        }
         byte value = buffer.get();
         return new ByteTag(name, value);
     }
