@@ -66,6 +66,13 @@ public class Utilities {
         return i;
     }
 
+    public static String readStringFromByteBuffer(ByteBuffer buffer) {
+        short length = buffer.getShort();
+        byte[] stringBytes = new byte[length];
+        buffer.get(stringBytes);
+        return new String(stringBytes);
+    }
+
     public static ByteBuffer clone(ByteBuffer original) {
         ByteBuffer clone = ByteBuffer.allocate(original.capacity());
         original.rewind();//copy from the beginning
