@@ -1,30 +1,42 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
 import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.nbt.AbstractTag;
+import com.bitbyterstudios.m3c.util.Utilities;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.zip.DataFormatException;
 
 public class Map34 extends ReceivingPacket {
-    private int damage;
+    private int mapId;
     private byte scale;
-    private byte[] mapData;
+    private AbstractTag mapData;
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
-        damage = readVarInt(buff);
+        mapId = readVarInt(buff);
         scale = buff.get();
-        mapData = new byte[buff.remaining()];
+        byte[] rawMapData = new byte[buff.remaining()];
         for (int i = 0; buff.hasRemaining(); i++) {
-            mapData[i] = buff.get();
+            rawMapData[i] = buff.get();
+        }
+
+        // Highly experimental & untested
+        try {
+            rawMapData = Utilities.decompress(rawMapData);
+            mapData = AbstractTag.fromByteBuffer(ByteBuffer.wrap(rawMapData), true);
+        } catch (IOException | DataFormatException e) {
+            e.printStackTrace();
         }
     }
 
-    public int getDamage() {
-        return damage;
+    public int getMapId() {
+        return mapId;
     }
 
-    public void setDamage(int damage) {
-        this.damage = damage;
+    public void setMapId(int mapId) {
+        this.mapId = mapId;
     }
 
     public byte getScale() {
@@ -35,11 +47,11 @@ public class Map34 extends ReceivingPacket {
         this.scale = scale;
     }
 
-    public byte[] getMapData() {
+    public AbstractTag getMapData() {
         return mapData;
     }
 
-    public void setMapData(byte[] mapData) {
+    public void setMapData(AbstractTag mapData) {
         this.mapData = mapData;
     }
 }
