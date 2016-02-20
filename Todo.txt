@@ -1,6 +1,6 @@
 - nbt	✓
 - entity metadata ✓
-- entity properties
+- entity properties ✓
 - chunk data
 - fix slots class (loading from buffer)	✓
 - map data
