@@ -4,4 +4,4 @@
 - chunk data (delayed as 1.9 introduces a new format)
 - fix slots class (loading from buffer)	✓
 - map data ✓ (kinda)
-- playerlistitem data
+- playerlistitem data ✓
