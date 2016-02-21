@@ -1,6 +1,7 @@
 package com.bitbyterstudios.m3c.util;
 
 import com.bitbyterstudios.m3c.nbt.AbstractTag;
+import com.bitbyterstudios.m3c.nbt.EndTag;
 
 import java.nio.ByteBuffer;
 
@@ -52,7 +53,7 @@ public class Slot {
     public static Slot fromByteBuffer(ByteBuffer buffer) {
         short itemId = buffer.getShort();
         if (itemId == -1) { // Empty slot
-            return new Slot(itemId, (byte) 0, (short) 0, null);
+            return new Slot(itemId, (byte) 0, (short) 0, new EndTag());
         }
         byte count = buffer.get();
         short damage = buffer.getShort();
