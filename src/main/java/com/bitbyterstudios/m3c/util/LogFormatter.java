@@ -10,20 +10,20 @@ public class LogFormatter extends Formatter {
 
     @Override
     public String format(LogRecord logRecord) {
-        StringBuilder buff = new StringBuilder();
-        buff.append("[");
-        buff.append(calcDate(logRecord.getMillis()));
-        buff.append(" ");
-        buff.append(logRecord.getLevel().getName());
-        buff.append("] ");
-        buff.append(logRecord.getMessage());
-        buff.append("\n");
-        return buff.toString();
+        return new StringBuilder()
+                .append("[")
+                .append(calcDate(logRecord.getMillis()))
+                .append(" ")
+                .append(logRecord.getLevel().getName())
+                .append("] ")
+                .append(logRecord.getMessage())
+                .append("\n")
+                .toString();
     }
 
-    private String calcDate(long millisecs) {
-        SimpleDateFormat date_format = new SimpleDateFormat("HH:mm:ss");
-        Date resultdate = new Date(millisecs);
-        return date_format.format(resultdate);
+    private String calcDate(long millis) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        Date date = new Date(millis);
+        return dateFormat.format(date);
     }
 }
