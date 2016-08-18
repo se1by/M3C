@@ -38,8 +38,8 @@ public class PluginLoader {
                 }
             }
             return plugin;
-        } catch (IOException | ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
+        } catch (IOException | ClassNotFoundException | IllegalAccessException | InstantiationException exception) {
+            exception.printStackTrace();
         }
         return null;
     }

@@ -1,6 +1,6 @@
 import com.bitbyterstudios.m3c.Client;
 import com.bitbyterstudios.m3c.ServerHandler;
-import com.bitbyterstudios.m3c.packets.v47.receiving.Chat02;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Chat02;
 import com.bitbyterstudios.m3c.plugin.Plugin;
 
 public class HelloWorldPlugin implements Plugin {

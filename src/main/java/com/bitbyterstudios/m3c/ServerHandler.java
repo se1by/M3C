@@ -1,28 +1,94 @@
 
 package com.bitbyterstudios.m3c;
 
-import com.bitbyterstudios.m3c.packet_handler.receiving.*;
-import com.bitbyterstudios.m3c.packet_handler.receiving.ReceivingPacket;
-import com.bitbyterstudios.m3c.packet_handler.sending.EncryptionResponse01;
-import com.bitbyterstudios.m3c.packet_handler.sending.HandShake00;
-import com.bitbyterstudios.m3c.packet_handler.sending.LoginStart00;
-import com.bitbyterstudios.m3c.packets.receiving.*;
-import com.bitbyterstudios.m3c.packets.receiving.Chat02;
-import com.bitbyterstudios.m3c.packets.receiving.Health06;
-import com.bitbyterstudios.m3c.packets.receiving.HeldItemChange09;
-import com.bitbyterstudios.m3c.packets.receiving.JoinGame01;
-import com.bitbyterstudios.m3c.packets.receiving.KeepAlive00;
-import com.bitbyterstudios.m3c.packets.receiving.PlayerPositionLook08;
-import com.bitbyterstudios.m3c.packets.receiving.Respawn07;
-import com.bitbyterstudios.m3c.packets.receiving.SpawnPosition05;
-import com.bitbyterstudios.m3c.packets.receiving.Time03;
-import com.bitbyterstudios.m3c.packets.sending.SendingPacket;
+import com.bitbyterstudios.m3c.packets.ReceivingPacket;
+import com.bitbyterstudios.m3c.packets.SendingPacket;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Animation0B;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.AttachEntity1B;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.BlockAction24;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.BlockBreak25;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.BlockChange23;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Camera43;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.ChangeGamestate2B;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Chat02;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.ChunkData21;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.CloseWindow2E;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.CollectItem0D;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.CombatEvent42;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.ConfirmTransaction32;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.DestroyEntity13;
+import com.bitbyterstudios.m3c.packets.v47.login.receiving.Disconnect00;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Disconnect40;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.DisplayScoreboard3D;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Effect28;
+import com.bitbyterstudios.m3c.packets.v47.login.receiving.EncryptionRequest01;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Entity14;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.EntityEffect1D;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.EntityEquipment04;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.EntityHeadLook19;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.EntityLook16;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.EntityLookAndRelativeMove17;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.EntityMetadata1C;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.EntityProperties20;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.EntityRelativeMove15;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.EntityStatus1A;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.EntityTeleport18;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.EntityVelocity12;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Explosion27;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Health06;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.HeldItemChange09;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.JoinGame01;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.KeepAlive00;
+import com.bitbyterstudios.m3c.packets.v47.login.receiving.LoginSuccess02;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Map34;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.MapChunkBulk26;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.MultiBlockChange22;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.OpenSignEditor36;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.OpenWindow2D;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Particle2A;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.PlayerAbilities39;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.PlayerListHeaderAndFooter47;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.PlayerListItem38;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.PlayerPositionLook08;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.PluginMessage3F;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.RemoveEntityEffect1E;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.ResourcepackSend48;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Respawn07;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.ScoreboardObjective3B;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.ServerDifficulty41;
+import com.bitbyterstudios.m3c.packets.v47.login.receiving.SetCompression03;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.SetCompression46;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.SetExperience1F;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.SetSlot2F;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.SoundEffect29;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.SpawnExperienceOrbs11;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.SpawnGlobalEntity2C;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.SpawnMob0F;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.SpawnObject0E;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.SpawnPainting10;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.SpawnPlayer0C;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.SpawnPosition05;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Statistics37;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.TabComplete3A;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Teams3E;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Time03;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.Title45;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.UpdateBlockEntity35;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.UpdateEntityNbt49;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.UpdateScore3C;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.UpdateSign33;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.UseBed0A;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.WindowItems30;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.WindowProperty31;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.WorldBorder44;
+import com.bitbyterstudios.m3c.packets.v47.login.sending.EncryptionResponse01;
+import com.bitbyterstudios.m3c.packets.v47.login.sending.Handshake00;
+import com.bitbyterstudios.m3c.packets.v47.login.sending.LoginStart00;
 import com.bitbyterstudios.m3c.util.CryptoHelper;
 import com.bitbyterstudios.m3c.util.Utilities;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
-import javax.crypto.SecretKey;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -35,6 +101,8 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
 
+import javax.crypto.SecretKey;
+
 public class ServerHandler {
 
     private Socket socket;
@@ -43,10 +111,11 @@ public class ServerHandler {
     private Client client;
     private ClientData data;
 
-    private HashMap<Integer, ReceivingPacket> login;
-    private HashMap<Integer, Class<? extends com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket>> packets;
+    private HashMap<Integer, Class<? extends ReceivingPacket>> login;
+    private HashMap<Integer, Class<? extends ReceivingPacket>> packets;
     private Collection<SendingPacket> packetsToSend;
 
+    private int protocolVersion;
     private int compressionThreshold;
 
     public ServerHandler(Client client, ClientData data) {
@@ -60,6 +129,8 @@ public class ServerHandler {
             out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
             packetsToSend = new ArrayList<>();
+            //TODO: determine protocolVersion of server
+            protocolVersion = 47;
             loadPackets();
         } catch (IOException e) {
             e.printStackTrace();
@@ -82,66 +153,66 @@ public class ServerHandler {
         int unknown = 0;
         while (true) {
             ByteBuffer buff;
-            int len;
+            int uncompressedLength;
 
             if (compressionThreshold > 0) {
-                int packet_length = readVarInt(in); //packet length
-                len = readVarInt(in); //length of uncompressed
-                packet_length -= Utilities.getVarIntWidth(len);
+                int packetLength = Utilities.readVarInt(in); //packet length
+                uncompressedLength = Utilities.readVarInt(in); //length of uncompressed
+                packetLength -= Utilities.getVarIntWidth(uncompressedLength);
 
-                byte[] raw_packet = new byte[packet_length];
-                in.readFully(raw_packet);
+                byte[] rawPacket = new byte[packetLength];
+                in.readFully(rawPacket);
 
-                if (len > 0) {
+                if (uncompressedLength > 0) {
                     try {
-                        buff = ByteBuffer.wrap(Utilities.decompress(raw_packet));
+                        buff = ByteBuffer.wrap(Utilities.decompress(rawPacket));
                     } catch (DataFormatException e) {
                         e.printStackTrace();
                         continue;
                     }
                 } else {
-                    buff = ByteBuffer.wrap(raw_packet);
-                    //let's "fix" len for debug output below
-                    len = packet_length - 1;
+                    buff = ByteBuffer.wrap(rawPacket);
+                    //set uncompressedLength for log output
+                    uncompressedLength = packetLength - 1;
                 }
             } else {
-                len = readVarInt(in);
-                byte[] raw = new byte[len];
+                uncompressedLength = Utilities.readVarInt(in);
+                byte[] raw = new byte[uncompressedLength];
                 in.readFully(raw);
                 buff = ByteBuffer.wrap(raw);
             }
 
-            int type = readVarInt(buff);
-            if (packets.get(type) == null) {
+            int type = Utilities.readVarInt(buff);
+            Class<? extends ReceivingPacket> packetClass = packets.get(type);
+            if (packetClass == null) {
                 if (unknown > 3) {
                     return;
                 }
-                handleUnknown(buff, type, len);
+                logUnknownPacket(buff, type, uncompressedLength);
                 unknown++;
-            } else {
-                logReceivedPacket(packets.get(type), type, len);
-
-                Class<? extends com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket> packet_class = packets.get(type);
-                com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket packet = null;
-                try {
-                    packet = packet_class.newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-
-                packet.handle(buff, this);
-                getClient().getPluginManager().callListeners(packet, this);
+                continue;
             }
 
-            for (SendingPacket packet : packetsToSend) {
-                Client.getLogger().finest("sending packet " + packet.getClass().getSimpleName());
-                send(packet);
+            logReceivedPacket(packets.get(type), type, uncompressedLength);
+            ReceivingPacket packet = null;
+            try {
+                packet = packetClass.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+
+            packet.handle(buff, this);
+            getClient().getPluginManager().callListeners(packet, this);
+
+            for (SendingPacket sendingPacket : packetsToSend) {
+                Client.getLogger().finest("sending packet " + sendingPacket.getClass().getSimpleName());
+                send(sendingPacket);
             }
             packetsToSend.clear();
         }
     }
 
-    private void handleUnknown(ByteBuffer buff, int type, int len) {
+    private void logUnknownPacket(ByteBuffer buff, int type, int len) {
         Client.getLogger().finer("Unknown packet!");
         Client.getLogger().finer("0x" + Integer.toHexString(type) + "(" + type + ") | " + len);
         if (len > 100) {
@@ -155,33 +226,29 @@ public class ServerHandler {
         }
     }
 
-    private void logReceivedPacket(Class<? extends com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket> rPacket, int type, int len) {
+    private void logReceivedPacket(Class<? extends ReceivingPacket> rPacket, int type, int len) {
         Client.getLogger().finest("Received packet, type " + rPacket.getSimpleName() + "(" + type + ")"
                 + ", hex 0x" + Integer.toHexString(type) + " len " + len);
     }
 
     private boolean handleLogin() throws IOException {
-        HandShake00 handShake = new HandShake00(socket.getInetAddress().getHostAddress(), socket.getPort());
-        handShake.create();
-        handShake.send(out, compressionThreshold);
+        send(new Handshake00(protocolVersion, socket.getInetAddress().getHostAddress(), (short) socket.getPort()));
 
-        LoginStart00 loginStart = new LoginStart00(data.getUser());
-        loginStart.create();
-        loginStart.send(out, compressionThreshold);
+        send(new LoginStart00(data.getUser()));
 
         while (true) {
             ByteBuffer buff;
-            int len;
+            int length;
 
             if (compressionThreshold > 0) {
-                int plen = readVarInt(in); //packet length
-                len = readVarInt(in); //length of uncompressed
-                plen -= Utilities.getVarIntWidth(len);
+                int packetLength = Utilities.readVarInt(in); //packet length
+                length = Utilities.readVarInt(in); //length of uncompressed
+                packetLength -= Utilities.getVarIntWidth(length);
 
-                byte[] raw = new byte[plen];
+                byte[] raw = new byte[packetLength];
                 in.readFully(raw);
 
-                if (len > 0) {
+                if (length > 0) {
                     try {
                         buff = ByteBuffer.wrap(Utilities.decompress(raw));
                     } catch (DataFormatException e) {
@@ -192,27 +259,36 @@ public class ServerHandler {
                     buff = ByteBuffer.wrap(raw);
                 }
             } else {
-                len = readVarInt(in);
-                byte[] raw = new byte[len];
+                length = Utilities.readVarInt(in);
+                byte[] raw = new byte[length];
                 in.readFully(raw);
                 buff = ByteBuffer.wrap(raw);
             }
 
-            int type = readVarInt(buff);
+            int type = Utilities.readVarInt(buff);
 
-
-            ReceivingPacket handlingPacket = login.get(type);
-            if (handlingPacket == null) {
-                Client.getLogger().severe("Received unknown  packet, type 0x" + Integer.toHexString(type) + " with length " + len);
-                throw new IllegalStateException("Couldn't find a packet to handle type " + type + "(len " + len + ")!");
-            } else {
-                Client.getLogger().finest("Received packet, type " + handlingPacket.getClass().getSimpleName() + ", len " + len);
+            Class<? extends ReceivingPacket> packetClass = login.get(type);
+            if (packetClass == null) {
+                logUnknownPacket(buff, type, length);
+                //likely to fail beyond this point, but we try
+                continue;
             }
-            handlingPacket.handle(buff, this);
+
+            logReceivedPacket(packetClass, type, length);
+            ReceivingPacket packet = null;
+            try {
+                packet = packetClass.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+
+            packet.handle(buff, this);
+            getClient().getPluginManager().callListeners(packet, this);
+
             if (type == 0) { //We got kicked :(
                 return false;
             } else if (type == 1) { //We should encrypt!
-                encrypt((EncryptionRequest01) handlingPacket);
+                encrypt((EncryptionRequest01) packet);
             } else if (type == 2) { //Yay, successful login!
                 return true;
             }
@@ -225,43 +301,10 @@ public class ServerHandler {
         ApiAccess.sendSessionRequest(data.getAccessToken(), servId, data.getUuid());
         byte[] secret = CryptoHelper.encryptData(req.getPubKey(), secretKey.getEncoded());
         byte[] verify = CryptoHelper.encryptData(req.getPubKey(), req.getVerifyToken());
-        EncryptionResponse01 response = new EncryptionResponse01(secret, verify);
-        response.create();
-        response.send(out, compressionThreshold);
-        out.flush();
+        send(new EncryptionResponse01(secret, verify));
         BufferedOutputStream buffOut = new BufferedOutputStream(CryptoHelper.encryptOuputStream(secretKey, socket.getOutputStream()));
         out = new DataOutputStream(buffOut);
         in = new DataInputStream(CryptoHelper.decryptInputStream(secretKey, socket.getInputStream()));
-    }
-
-    public int readVarInt(DataInputStream ins) throws IOException{
-        int i = 0;
-        int j = 0;
-        while (true){
-            int k = ins.read();
-
-            i |= (k & 0x7F) << j++ * 7;
-            if (j > 5) throw new RuntimeException("VarInt too big");
-
-            if ((k & 0x80) != 128) break; //MSB not set? 0x80 = 1000 0000(b)
-        }
-
-        return i;
-    }
-
-    public int readVarInt(ByteBuffer buff) {
-        int i = 0;
-        int j = 0;
-        while (true) {
-            int k = buff.get();
-
-            i |= (k & 0x7F) << j++ * 7;
-            if (j > 5) throw new RuntimeException("VarInt too big");
-
-            if ((k & 0x80) != 128) break; //MSB not set? 0x80 = 1000 0000(b)
-        }
-
-        return i;
     }
 
     public void addPacketToSend(SendingPacket packet) {
@@ -295,10 +338,10 @@ public class ServerHandler {
 
     private void loadPackets() {
         login = new HashMap<>();
-        login.put(0, new Disconnect00());
-        login.put(1, new EncryptionRequest01());
-        login.put(2, new LoginSuccess02());
-        login.put(0x03, new SetCompression03());
+        login.put(0, Disconnect00.class);
+        login.put(1, EncryptionRequest01.class);
+        login.put(2, LoginSuccess02.class);
+        login.put(0x03, SetCompression03.class);
 
         packets = new HashMap<>();
         packets.put(0x00, KeepAlive00.class);

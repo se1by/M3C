@@ -2,7 +2,7 @@ package com.bitbyterstudios.m3c.plugin;
 
 import com.bitbyterstudios.m3c.Client;
 import com.bitbyterstudios.m3c.ServerHandler;
-import com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket;
+import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,7 +29,9 @@ public class PluginManager {
         File pluginDir = new File("plugins");
         if (!pluginDir.exists()) {
             Client.getLogger().info("Plugin directory does not exists, creating...");
-            pluginDir.mkdirs();
+            if (!pluginDir.mkdirs()) {
+                Client.getLogger().severe("Could not create plugin directory!");
+            }
             return;
         }
         if (!pluginDir.isDirectory()) {
@@ -38,19 +40,19 @@ public class PluginManager {
         }
 
         for (File f : pluginDir.listFiles()) {
-            Plugin p = loader.loadPlugin(f);
-            if (plugins.containsKey(p.getName())) {
-                Client.getLogger().warning("Already loaded a plugin called " + p.getName());
+            Plugin plugin = loader.loadPlugin(f);
+            if (plugins.containsKey(plugin.getName())) {
+                Client.getLogger().warning("Already loaded a plugin called " + plugin.getName());
                 continue;
             }
-            p.onEnable(client);
-            Client.getLogger().info("Enabled " + p.getName());
-            plugins.put(p.getName(), p);
+            plugin.onEnable(client);
+            Client.getLogger().info("Enabled " + plugin.getName());
+            plugins.put(plugin.getName(), plugin);
         }
         Client.getLogger().info("Plugins loaded!");
     }
 
-    public void addListener(Class<? extends ReceivingPacket> clazz, Listener listener) {
+    public void addListener(Class<? extends ReceivingPacket> clazz, Listener<? extends ReceivingPacket> listener) {
         List<Listener> list = listeners.get(clazz);
         if (list == null) {
             list = new ArrayList<>();
@@ -61,9 +63,10 @@ public class PluginManager {
 
     @SuppressWarnings("unchecked")
     public void callListeners(ReceivingPacket packet, ServerHandler handler) {
-        //for (Listener<? extends ReceivingPacket> listener : listeners.get(packet.getClass())) listener.handle(packet);
-        if (listeners.get(packet.getClass()) == null) return;
-        listeners.get(packet.getClass()).forEach((Listener listener1) ->
+        if (listeners.get(packet.getClass()) == null) {
+            return;
+        }
+        listeners.get(packet.getClass()).forEach(listener1 ->
                 listener1.handle(packet, handler));
     }
 }

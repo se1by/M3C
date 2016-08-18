@@ -2,8 +2,8 @@ package com.bitbyterstudios.m3c;
 
 import com.bitbyterstudios.m3c.listener.KeepAliveListener;
 import com.bitbyterstudios.m3c.listener.SetCompressionListener;
-import com.bitbyterstudios.m3c.packets.receiving.KeepAlive00;
-import com.bitbyterstudios.m3c.packets.receiving.SetCompression46;
+import com.bitbyterstudios.m3c.packets.v47.play.receiving.KeepAlive00;
+import com.bitbyterstudios.m3c.packets.v47.login.receiving.SetCompression03;
 import com.bitbyterstudios.m3c.plugin.PluginManager;
 import com.bitbyterstudios.m3c.util.LogFormatter;
 import org.yaml.snakeyaml.Yaml;
@@ -28,7 +28,6 @@ public class Client {
     private int port;
 
     private String user;
-    private String password;
 
     public Client() {
         pluginManager = new PluginManager(this);
@@ -41,7 +40,6 @@ public class Client {
             //System.exit(0);
         }
         send("Started MC-Console-Client v0.2 ...");
-        String user = null;
         String pass = null;
 
         File config = new File("m3c.yml");
@@ -50,7 +48,7 @@ public class Client {
             Map map = (Map) yaml.load(new FileInputStream(config));
             user = (String) map.get("user");
             pass = (String) map.get("pass");
-            server = (String) map.get("server");
+            server = (String) map.get("host");
             port = map.containsKey("port") ? (Integer) map.get("port") : 25565;
         }
 
@@ -67,7 +65,6 @@ public class Client {
         if (server == null || server.isEmpty()) {
             server = "mc.hypixel.net";
         }
-        server = "mc.hypixel.net";
 
         if (port == 0) {
             port = 25565;
@@ -75,7 +72,7 @@ public class Client {
 
         pluginManager.load();
         pluginManager.addListener(KeepAlive00.class, new KeepAliveListener());
-        pluginManager.addListener(SetCompression46.class, new SetCompressionListener());
+        pluginManager.addListener(SetCompression03.class, new SetCompressionListener());
 
         getLogger().info("Authenticating...");
         ClientData data = ApiAccess.authenticate(user, pass);
@@ -124,10 +121,6 @@ public class Client {
         return "lolnope";
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public static void main(String[] args) throws IOException {
         logger.setUseParentHandlers(false);
         try {
@@ -140,9 +133,9 @@ public class Client {
             logger.addHandler(consoleHandler);
             consoleHandler.setFormatter(new LogFormatter());
             consoleHandler.setLevel(Level.INFO);
-        } catch (IOException e) {
+        } catch (IOException ioe) {
             System.err.println("Couldn't setup logger!");
-            e.printStackTrace();
+            ioe.printStackTrace();
         }
         new Client().start();
     }

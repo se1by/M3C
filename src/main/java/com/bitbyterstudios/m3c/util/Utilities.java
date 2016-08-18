@@ -3,6 +3,7 @@ package com.bitbyterstudios.m3c.util;
 import com.google.common.io.ByteArrayDataOutput;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -15,6 +16,22 @@ public class Utilities {
 
     public static boolean getBit(byte toCheck, int position) {
         return (toCheck >> position & 1) == 1;
+    }
+
+
+    public static int readVarInt(DataInputStream ins) throws IOException {
+        int i = 0;
+        int j = 0;
+        while (true){
+            int k = ins.read();
+
+            i |= (k & 0x7F) << j++ * 7;
+            if (j > 5) throw new RuntimeException("VarInt too big");
+
+            if ((k & 0x80) != 128) break; //MSB not set? 0x80 = 1000 0000(b)
+        }
+
+        return i;
     }
 
     public static int readVarInt(ByteBuffer buff) {
@@ -134,8 +151,8 @@ public class Utilities {
         for (Type genericInterface : genericInterfaces) {
             if (genericInterface instanceof ParameterizedType) {
                 Type[] genericTypes = ((ParameterizedType) genericInterface).getActualTypeArguments();
-                for (Type t : genericTypes) {
-                    return ((Class) t);
+                if (genericTypes.length > 1) {
+                    return ((Class) genericTypes[0]);
                 }
             }
         }
