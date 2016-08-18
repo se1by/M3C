@@ -1,26 +1,42 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
-import com.bitbyterstudios.m3c.Client;
 import com.bitbyterstudios.m3c.ServerHandler;
-import com.bitbyterstudios.m3c.packets.sending.Status22;
 
 import java.nio.ByteBuffer;
 
 public class Health06 extends ReceivingPacket {
+    private float health;
+    private int food;
+    private float saturation;
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
-        float health = buff.getFloat();
-        int food = readVarInt(buff);
-        float saturation = buff.getFloat();
+        health = buff.getFloat();
+        food = readVarInt(buff);
+        saturation = buff.getFloat();
+    }
 
-        Client.getLogger().fine(String.format("We got %f <3 (food = %d, saturation %f)", health, food, saturation));
+    public float getHealth() {
+        return health;
+    }
 
-        if (health <= 0) {
-            Client.getLogger().fine("We are dead :o Better respawn...");
-            Status22 status = new Status22();
-            status.create();
-            handler.addPacketToSend(status);
-        }
+    public void setHealth(float health) {
+        this.health = health;
+    }
+
+    public int getFood() {
+        return food;
+    }
+
+    public void setFood(int food) {
+        this.food = food;
+    }
+
+    public float getSaturation() {
+        return saturation;
+    }
+
+    public void setSaturation(float saturation) {
+        this.saturation = saturation;
     }
 }

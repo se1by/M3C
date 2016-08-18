@@ -1,15 +1,16 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
-import com.bitbyterstudios.m3c.Client;
 import com.bitbyterstudios.m3c.ServerHandler;
-import com.bitbyterstudios.m3c.packets.sending.PlayerPositionLook06;
 
 import java.nio.ByteBuffer;
 
 public class PlayerPositionLook08 extends ReceivingPacket {
-    private double x, y, z;
-    private float yaw, pitch;
-    private boolean onGround;
+    private double x;
+    private double y;
+    private double z;
+    private float yaw;
+    private float pitch;
+    private byte flags;
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
@@ -18,40 +19,54 @@ public class PlayerPositionLook08 extends ReceivingPacket {
         z = buff.getDouble();
         yaw = buff.getFloat();
         pitch = buff.getFloat();
-        onGround = buff.get() != 0;
-
-        handler.getData().getLocation().updateFromPlayerPositionLook08(this);
-        PlayerPositionLook06 positionLook06 = new PlayerPositionLook06();
-        positionLook06.setPosition(x, y, z, yaw, pitch, onGround);
-        positionLook06.create();
-        handler.addPacketToSend(positionLook06);
-        handler.getData().setSpawned(true);
-
-        Client.getLogger().fine("Position: x=" + x + ", y=" + y + ", z=" + z
-                + ", yaw=" + yaw + ", pitch=" + pitch + ", onGround=" + onGround);
+        flags = buff.get();
     }
 
     public double getX() {
         return x;
     }
 
+    public void setX(double x) {
+        this.x = x;
+    }
+
     public double getY() {
         return y;
+    }
+
+    public void setY(double y) {
+        this.y = y;
     }
 
     public double getZ() {
         return z;
     }
 
+    public void setZ(double z) {
+        this.z = z;
+    }
+
     public float getYaw() {
         return yaw;
+    }
+
+    public void setYaw(float yaw) {
+        this.yaw = yaw;
     }
 
     public float getPitch() {
         return pitch;
     }
 
-    public boolean isOnGround() {
-        return onGround;
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
+    }
+
+    public byte getFlags() {
+        return flags;
+    }
+
+    public void setFlags(byte flags) {
+        this.flags = flags;
     }
 }

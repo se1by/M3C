@@ -1,20 +1,52 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
-import com.bitbyterstudios.m3c.Client;
 import com.bitbyterstudios.m3c.ServerHandler;
 
 import java.nio.ByteBuffer;
 
-public class Respawn07 extends ReceivingPacket { //Name is a bit misleading, it's actually a "change dimension" packet
+public class Respawn07 extends ReceivingPacket {
+    private int dimension;
+    private byte difficulty;
+    private byte gamemode;
+    private String levelType;
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
-        int dimension = buff.getInt();
-        int difficulty = buff.get() & 0xFF;
-        int gamemode = buff.get() & 0xFF;
-        String level = readString(buff);
+        dimension = buff.getInt();
+        difficulty = (byte) (buff.get() & 0xFF);
+        gamemode = (byte) (buff.get() & 0xFF);
+        levelType = readString(buff);
+    }
 
-        Client.getLogger().fine(String.format("We changed into dimension %d, with difficulty %d, gamemode %d on level %s",
-                dimension, difficulty, gamemode, level));
+    public int getDimension() {
+        return dimension;
+    }
+
+    public void setDimension(int dimension) {
+        this.dimension = dimension;
+    }
+
+    public byte getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(byte difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public byte getGamemode() {
+        return gamemode;
+    }
+
+    public void setGamemode(byte gamemode) {
+        this.gamemode = gamemode;
+    }
+
+    public String getLevelType() {
+        return levelType;
+    }
+
+    public void setLevelType(String levelType) {
+        this.levelType = levelType;
     }
 }

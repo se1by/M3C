@@ -121,9 +121,7 @@ public class CryptoHelper {
             X509EncodedKeySpec spec = new X509EncodedKeySpec(pubKeyBytes);
             KeyFactory factory = KeyFactory.getInstance("RSA");
             return factory.generatePublic(spec);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             e.printStackTrace();
         }
 
@@ -158,10 +156,8 @@ public class CryptoHelper {
     private static byte[] cipherOperation(int par0, Key key, byte[] data) {
         try {
             return createTheCipherInstance(par0, key.getAlgorithm(), key).doFinal(data);
-        } catch (IllegalBlockSizeException var4) {
+        } catch (IllegalBlockSizeException | BadPaddingException var4) {
             var4.printStackTrace();
-        } catch (BadPaddingException var5) {
-            var5.printStackTrace();
         }
 
         System.err.println("Cipher data failed!");
@@ -176,12 +172,8 @@ public class CryptoHelper {
             Cipher var3 = Cipher.getInstance(par1Str);
             var3.init(par0, par2Key);
             return var3;
-        } catch (InvalidKeyException var4) {
+        } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException var4) {
             var4.printStackTrace();
-        } catch (NoSuchAlgorithmException var5) {
-            var5.printStackTrace();
-        } catch (NoSuchPaddingException var6) {
-            var6.printStackTrace();
         }
 
         System.err.println("Cipher creation failed!");

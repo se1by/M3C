@@ -1,17 +1,33 @@
 package com.bitbyterstudios.m3c.packets.sending;
 
+import com.bitbyterstudios.m3c.util.Utilities;
+
+import java.nio.ByteBuffer;
+
 public class KeepAlive00 extends SendingPacket {
-    private static final int PACKET_ID = 0;
     private int id;
 
     public KeepAlive00() {
-        super();
+    }
+
+    public KeepAlive00(int id) {
+        this.id = id;
     }
 
     @Override
-    public void create() {
-        writeVarInt(PACKET_ID);
-        writeVarInt(id);
+    public ByteBuffer getBuffer() {
+        ByteBuffer buffer = ByteBuffer.allocate(Utilities.getVarIntWidth(id));
+        writeVarInt(buffer, id);
+        return buffer;
+    }
+
+    @Override
+    public int getType() {
+        return 0x00;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void setId(int id) {

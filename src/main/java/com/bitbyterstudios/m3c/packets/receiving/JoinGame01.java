@@ -1,26 +1,82 @@
 package com.bitbyterstudios.m3c.packets.receiving;
 
-import com.bitbyterstudios.m3c.Client;
 import com.bitbyterstudios.m3c.ServerHandler;
 
 import java.nio.ByteBuffer;
 
 public class JoinGame01 extends ReceivingPacket {
+    private int entityId;
+    private byte gamemode;
+    private byte dimension;
+    private byte difficulty;
+    private byte maxPlayers; // Don't trust this value
+    private String levelType;
+    private boolean reducedDebug;
 
     @Override
     public void handle(ByteBuffer buff, ServerHandler handler) {
-        int entityId = buff.getInt();
-        int gamemode = buff.get() & 0xFF;
-        byte dimension = buff.get();
-        int difficulty = buff.get() & 0xFF;
-        int maxPlayers = buff.get() & 0xFF;
-        String levelType = readString(buff);
-        handler.getData().setEntityId(entityId);
-        Client.getLogger().fine("Our entityID is " + entityId);
-        Client.getLogger().fine("Our gamemode is " + gamemode);
-        Client.getLogger().fine("We are in dimension " + dimension);
-        Client.getLogger().fine("We play at difficulty " + difficulty);
-        Client.getLogger().fine("Max players is " + maxPlayers);
-        Client.getLogger().fine("Level type is " + levelType);
+        entityId = buff.getInt();
+        gamemode = (byte) (buff.get() & 0xFF);
+        dimension = buff.get();
+        difficulty = (byte) (buff.get() & 0xFF);
+        maxPlayers = (byte) (buff.get() & 0xFF);
+        levelType = readString(buff);
+        reducedDebug = buff.get() == 1;
+    }
+
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(int entityId) {
+        this.entityId = entityId;
+    }
+
+    public byte getGamemode() {
+        return gamemode;
+    }
+
+    public void setGamemode(byte gamemode) {
+        this.gamemode = gamemode;
+    }
+
+    public byte getDimension() {
+        return dimension;
+    }
+
+    public void setDimension(byte dimension) {
+        this.dimension = dimension;
+    }
+
+    public byte getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(byte difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public byte getMaxPlayers() {
+        return maxPlayers;
+    }
+
+    public void setMaxPlayers(byte maxPlayers) {
+        this.maxPlayers = maxPlayers;
+    }
+
+    public String getLevelType() {
+        return levelType;
+    }
+
+    public void setLevelType(String levelType) {
+        this.levelType = levelType;
+    }
+
+    public boolean isReducedDebug() {
+        return reducedDebug;
+    }
+
+    public void setReducedDebug(boolean reducedDebug) {
+        this.reducedDebug = reducedDebug;
     }
 }

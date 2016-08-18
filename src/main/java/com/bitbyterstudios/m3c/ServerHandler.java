@@ -1,13 +1,26 @@
 
 package com.bitbyterstudios.m3c;
 
+import com.bitbyterstudios.m3c.packet_handler.receiving.*;
+import com.bitbyterstudios.m3c.packet_handler.receiving.ReceivingPacket;
+import com.bitbyterstudios.m3c.packet_handler.sending.EncryptionResponse01;
+import com.bitbyterstudios.m3c.packet_handler.sending.HandShake00;
+import com.bitbyterstudios.m3c.packet_handler.sending.LoginStart00;
 import com.bitbyterstudios.m3c.packets.receiving.*;
-import com.bitbyterstudios.m3c.packets.sending.EncryptionResponse01;
-import com.bitbyterstudios.m3c.packets.sending.HandShake00;
-import com.bitbyterstudios.m3c.packets.sending.LoginStart00;
+import com.bitbyterstudios.m3c.packets.receiving.Chat02;
+import com.bitbyterstudios.m3c.packets.receiving.Health06;
+import com.bitbyterstudios.m3c.packets.receiving.HeldItemChange09;
+import com.bitbyterstudios.m3c.packets.receiving.JoinGame01;
+import com.bitbyterstudios.m3c.packets.receiving.KeepAlive00;
+import com.bitbyterstudios.m3c.packets.receiving.PlayerPositionLook08;
+import com.bitbyterstudios.m3c.packets.receiving.Respawn07;
+import com.bitbyterstudios.m3c.packets.receiving.SpawnPosition05;
+import com.bitbyterstudios.m3c.packets.receiving.Time03;
 import com.bitbyterstudios.m3c.packets.sending.SendingPacket;
 import com.bitbyterstudios.m3c.util.CryptoHelper;
 import com.bitbyterstudios.m3c.util.Utilities;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 
 import javax.crypto.SecretKey;
 import java.io.BufferedOutputStream;
@@ -31,7 +44,7 @@ public class ServerHandler {
     private ClientData data;
 
     private HashMap<Integer, ReceivingPacket> login;
-    private HashMap<Integer, ReceivingPacket> packets;
+    private HashMap<Integer, Class<? extends com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket>> packets;
     private Collection<SendingPacket> packetsToSend;
 
     private int compressionThreshold;
@@ -46,7 +59,7 @@ public class ServerHandler {
             socket = new Socket(host, port);
             out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
-            packetsToSend = new ArrayList<SendingPacket>();
+            packetsToSend = new ArrayList<>();
             loadPackets();
         } catch (IOException e) {
             e.printStackTrace();
@@ -72,24 +85,24 @@ public class ServerHandler {
             int len;
 
             if (compressionThreshold > 0) {
-                int plen = readVarInt(in); //packet length
+                int packet_length = readVarInt(in); //packet length
                 len = readVarInt(in); //length of uncompressed
-                plen -= Utilities.getVarIntWidth(len);
+                packet_length -= Utilities.getVarIntWidth(len);
 
-                byte[] raw = new byte[plen];
-                in.readFully(raw);
+                byte[] raw_packet = new byte[packet_length];
+                in.readFully(raw_packet);
 
                 if (len > 0) {
                     try {
-                        buff = ByteBuffer.wrap(Utilities.decompress(raw));
+                        buff = ByteBuffer.wrap(Utilities.decompress(raw_packet));
                     } catch (DataFormatException e) {
                         e.printStackTrace();
                         continue;
                     }
                 } else {
-                    buff = ByteBuffer.wrap(raw);
+                    buff = ByteBuffer.wrap(raw_packet);
                     //let's "fix" len for debug output below
-                    len = plen - 1;
+                    len = packet_length - 1;
                 }
             } else {
                 len = readVarInt(in);
@@ -99,21 +112,30 @@ public class ServerHandler {
             }
 
             int type = readVarInt(buff);
-            ReceivingPacket rPacket = packets.get(type);
-            if (rPacket == null) {
+            if (packets.get(type) == null) {
                 if (unknown > 3) {
                     return;
                 }
                 handleUnknown(buff, type, len);
                 unknown++;
             } else {
-                logReceivedPacket(rPacket, type, len);
-                rPacket.handle(buff, this);
+                logReceivedPacket(packets.get(type), type, len);
+
+                Class<? extends com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket> packet_class = packets.get(type);
+                com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket packet = null;
+                try {
+                    packet = packet_class.newInstance();
+                } catch (InstantiationException | IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+
+                packet.handle(buff, this);
+                getClient().getPluginManager().callListeners(packet, this);
             }
 
             for (SendingPacket packet : packetsToSend) {
                 Client.getLogger().finest("sending packet " + packet.getClass().getSimpleName());
-                packet.send(out, compressionThreshold);
+                send(packet);
             }
             packetsToSend.clear();
         }
@@ -133,9 +155,8 @@ public class ServerHandler {
         }
     }
 
-    private void logReceivedPacket(ReceivingPacket rPacket, int type, int len) {
-        Client.getLogger().finest("Received packet, type " + rPacket.getClass().getSimpleName()
-                + (rPacket.getClass().getSimpleName().equals(TrashPacket.class.getSimpleName()) ? "(" + type + ")" : "")
+    private void logReceivedPacket(Class<? extends com.bitbyterstudios.m3c.packets.receiving.ReceivingPacket> rPacket, int type, int len) {
+        Client.getLogger().finest("Received packet, type " + rPacket.getSimpleName() + "(" + type + ")"
                 + ", hex 0x" + Integer.toHexString(type) + " len " + len);
     }
 
@@ -247,73 +268,113 @@ public class ServerHandler {
         packetsToSend.add(packet);
     }
 
+    private void send(SendingPacket packet) throws IOException {
+        ByteBuffer buffer = packet.getBuffer();
+        ByteArrayDataOutput buff2 = ByteStreams.newDataOutput();
+
+        if (compressionThreshold > 0) {
+            if (buffer.array().length > compressionThreshold) {
+                Utilities.writeVarInt(buff2, buffer.array().length);
+                buff2.write(Utilities.compress(buffer.array()));
+            } else {
+                buff2.write(0);
+                Utilities.writeVarInt(buff2, packet.getType());
+                buff2.write(buffer.array());
+            }
+        } else {
+            Utilities.writeVarInt(buff2, packet.getType());
+            buff2.write(buffer.array());
+        }
+
+        ByteArrayDataOutput buffer3 = ByteStreams.newDataOutput();
+        Utilities.writeVarInt(buffer3, buff2.toByteArray().length);
+        buffer3.write(buff2.toByteArray());
+        out.write(buffer3.toByteArray());
+        out.flush();
+    }
+
     private void loadPackets() {
-        login = new HashMap<Integer, ReceivingPacket>();
+        login = new HashMap<>();
         login.put(0, new Disconnect00());
         login.put(1, new EncryptionRequest01());
         login.put(2, new LoginSuccess02());
         login.put(0x03, new SetCompression03());
 
-
-        TrashPacket trashPacket = new TrashPacket();
-        packets = new HashMap<Integer, ReceivingPacket>();
-        packets.put(0, new KeepAlive00());
-        packets.put(1, new JoinGame01());
-        packets.put(2, new Chat02());
-        packets.put(3, new Time03());
-        packets.put(4, trashPacket); //Entity Equipment
-        packets.put(5, new SpawnPosition05());
-        packets.put(6, new Health06());
-        packets.put(7, new Respawn07());
-        packets.put(8, new PlayerPositionLook08());
-        packets.put(9, new HeldItemChange09());
-        packets.put(11, trashPacket); //Animation
-        packets.put(12, trashPacket); //Player Spawn (visible range)
-        packets.put(13, trashPacket); //Collect Item
-        packets.put(14, trashPacket); //Object(Vehicle) Spawn
-        packets.put(15, trashPacket); //Entity Spawn (should add that later)
-        packets.put(18, trashPacket); //Entity Velocity
-        packets.put(19, trashPacket); //Entity Destroy
-        packets.put(21, trashPacket); //Entity Move (relative, max 4 blocks)
-        packets.put(22, trashPacket); //Entity Look
-        packets.put(23, trashPacket); //Entity Look & Relative Move
-        packets.put(24, trashPacket); //Entity Teleport (move > 4 blocks)
-        packets.put(25, trashPacket); //Entity Head Look
-        packets.put(26, new Status26());
-        packets.put(27, trashPacket); //Attach Entity
-        packets.put(28, trashPacket); //Entity Metadata
-        packets.put(29, trashPacket); //Entity Effect
-        packets.put(31, new Experience31());
-        packets.put(32, trashPacket); //Entity Properties
-        packets.put(33, trashPacket); //Multi Block Change
-        packets.put(34, trashPacket); //Multi Block Change
-        packets.put(35, trashPacket); //Block Change, not important for now
-        packets.put(38, trashPacket); //Map bulk
-        packets.put(40, trashPacket); //Effect
-        packets.put(41, new SoundEffect41()); //Sound Effect
-        packets.put(42, trashPacket); //Particles
-        packets.put(43, trashPacket); //Gamestate Change (rain, credits)
-        packets.put(44, trashPacket); //Entity Metadata
-        packets.put(46, trashPacket); //Close window
-        packets.put(47, trashPacket); //Inventory
-        packets.put(48, trashPacket); //Inventory
-        packets.put(51, trashPacket); //Display Scoreboard
-        packets.put(53, trashPacket); //Block Entity Update
-        packets.put(55, new Statistic55());
-        packets.put(56, new PlayerListItem56());
-        packets.put(57, new PlayerAbilities57());
-        packets.put(59, trashPacket); //Scoreboards
-        packets.put(60, trashPacket); //Scoreboards (update)
-        packets.put(61, trashPacket); //Scoreboards
-        packets.put(62, trashPacket); //Teams
-        packets.put(63, new PluginMessage63());
-        packets.put(64, new Disconnect00());
-        packets.put(65, trashPacket); //Server difficultystop
-
-        packets.put(68, trashPacket); //Worldborder
-        packets.put(69, trashPacket); //Title
-        packets.put(70, new SetCompression70());
-        packets.put(71, trashPacket); //Player list header/footer
+        packets = new HashMap<>();
+        packets.put(0x00, KeepAlive00.class);
+        packets.put(0x01, JoinGame01.class);
+        packets.put(0x02, Chat02.class);
+        packets.put(0x03, Time03.class);
+        packets.put(0x04, EntityEquipment04.class);
+        packets.put(0x05, SpawnPosition05.class);
+        packets.put(0x06, Health06.class);
+        packets.put(0x07, Respawn07.class);
+        packets.put(0x08, PlayerPositionLook08.class);
+        packets.put(0x09, HeldItemChange09.class);
+        packets.put(0x0A, UseBed0A.class);
+        packets.put(0x0B, Animation0B.class);
+        packets.put(0x0C, SpawnPlayer0C.class);
+        packets.put(0x0D, CollectItem0D.class);
+        packets.put(0x0E, SpawnObject0E.class);
+        packets.put(0x0F, SpawnMob0F.class);
+        packets.put(0x10, SpawnPainting10.class);
+        packets.put(0x11, SpawnExperienceOrbs11.class);
+        packets.put(0x12, EntityVelocity12.class);
+        packets.put(0x13, DestroyEntity13.class);
+        packets.put(0x14, Entity14.class);
+        packets.put(0x15, EntityRelativeMove15.class);
+        packets.put(0x16, EntityLook16.class);
+        packets.put(0x17, EntityLookAndRelativeMove17.class);
+        packets.put(0x18, EntityTeleport18.class);
+        packets.put(0x19, EntityHeadLook19.class);
+        packets.put(0x1A, EntityStatus1A.class);
+        packets.put(0x1B, AttachEntity1B.class);
+        packets.put(0x1C, EntityMetadata1C.class);
+        packets.put(0x1D, EntityEffect1D.class);
+        packets.put(0x1E, RemoveEntityEffect1E.class);
+        packets.put(0x1F, SetExperience1F.class);
+        packets.put(0x20, EntityProperties20.class);
+        packets.put(0x21, ChunkData21.class);
+        packets.put(0x22, MultiBlockChange22.class);
+        packets.put(0x23, BlockChange23.class);
+        packets.put(0x24, BlockAction24.class);
+        packets.put(0x25, BlockBreak25.class);
+        packets.put(0x26, MapChunkBulk26.class);
+        packets.put(0x27, Explosion27.class);
+        packets.put(0x28, Effect28.class);
+        packets.put(0x29, SoundEffect29.class);
+        packets.put(0x2A, Particle2A.class);
+        packets.put(0x2B, ChangeGamestate2B.class);
+        packets.put(0x2C, SpawnGlobalEntity2C.class);
+        packets.put(0x2D, OpenWindow2D.class);
+        packets.put(0x2E, CloseWindow2E.class);
+        packets.put(0x2F, SetSlot2F.class);
+        packets.put(0x30, WindowItems30.class);
+        packets.put(0x31, WindowProperty31.class);
+        packets.put(0x32, ConfirmTransaction32.class);
+        packets.put(0x33, UpdateSign33.class);
+        packets.put(0x34, Map34.class);
+        packets.put(0x35, UpdateBlockEntity35.class);
+        packets.put(0x36, OpenSignEditor36.class);
+        packets.put(0x37, Statistics37.class);
+        packets.put(0x38, PlayerListItem38.class);
+        packets.put(0x39, PlayerAbilities39.class);
+        packets.put(0x3A, TabComplete3A.class);
+        packets.put(0x3B, ScoreboardObjective3B.class);
+        packets.put(0x3C, UpdateScore3C.class);
+        packets.put(0x3D, DisplayScoreboard3D.class);
+        packets.put(0x3E, Teams3E.class);
+        packets.put(0x3F, PluginMessage3F.class);
+        packets.put(0x40, Disconnect40.class);
+        packets.put(0x41, ServerDifficulty41.class);
+        packets.put(0x42, CombatEvent42.class);
+        packets.put(0x43, Camera43.class);
+        packets.put(0x44, WorldBorder44.class);
+        packets.put(0x45, Title45.class);
+        packets.put(0x46, SetCompression46.class);
+        packets.put(0x47, PlayerListHeaderAndFooter47.class);
+        packets.put(0x48, ResourcepackSend48.class);
+        packets.put(0x49, UpdateEntityNbt49.class);
     }
 
     public Logger getLogger() {

@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.UUID;
 
 public abstract class ReceivingPacket {
 
@@ -45,6 +46,12 @@ public abstract class ReceivingPacket {
         return new String(stringBytes, Charset.forName("UTF-8"));
     }
 
+    public UUID readUUID(ByteBuffer buffer) {
+        long most = buffer.getLong();
+        long least = buffer.getLong();
+        return new UUID(most, least);
+    }
+
     public static int readVarInt(DataInputStream ins) throws IOException {
         int i = 0;
         int j = 0;
@@ -69,6 +76,21 @@ public abstract class ReceivingPacket {
 
             i |= (k & 0x7F) << j++ * 7;
             if (j > 5) throw new RuntimeException("VarInt too big");
+
+            if ((k & 0x80) != 128) break; //MSB not set? 0x80 = 1000 0000(b)
+        }
+
+        return i;
+    }
+
+    public static long readVarLong(ByteBuffer buff) {
+        long i = 0;
+        int j = 0;
+        while (true) {
+            int k = buff.get();
+
+            i |= (k & 0x7F) << j++ * 7;
+            if (j > 10) throw new RuntimeException("VarInt too big");
 
             if ((k & 0x80) != 128) break; //MSB not set? 0x80 = 1000 0000(b)
         }
