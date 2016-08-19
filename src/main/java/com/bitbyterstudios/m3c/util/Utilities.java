@@ -151,7 +151,7 @@ public class Utilities {
         for (Type genericInterface : genericInterfaces) {
             if (genericInterface instanceof ParameterizedType) {
                 Type[] genericTypes = ((ParameterizedType) genericInterface).getActualTypeArguments();
-                if (genericTypes.length > 1) {
+                if (genericTypes.length > 0) {
                     return ((Class) genericTypes[0]);
                 }
             }
