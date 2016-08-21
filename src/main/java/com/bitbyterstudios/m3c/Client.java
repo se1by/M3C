@@ -6,6 +6,7 @@ import com.bitbyterstudios.m3c.packets.v47.play.receiving.KeepAlive00;
 import com.bitbyterstudios.m3c.packets.v47.login.receiving.SetCompression03;
 import com.bitbyterstudios.m3c.plugin.PluginManager;
 import com.bitbyterstudios.m3c.util.LogFormatter;
+import com.bitbyterstudios.m3c.util.Utilities;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.Console;
@@ -33,7 +34,7 @@ public class Client {
         pluginManager = new PluginManager(this);
     }
 
-    public void start() throws IOException {
+    public void start(String[] args) throws IOException {
         Console console = System.console();
         if (console == null) {
             logger.severe("Couldn't get Console instance");
@@ -65,9 +66,15 @@ public class Client {
         if (server == null || server.isEmpty()) {
             server = "mc.hypixel.net";
         }
+        if (args.length > 0) {
+            server = args[0];
+        }
 
         if (port == 0) {
             port = 25565;
+        }
+        if (args.length > 1 && Utilities.isInt(args[1])) {
+            port = Integer.parseInt(args[1]);
         }
 
         pluginManager.load();
@@ -137,7 +144,7 @@ public class Client {
             System.err.println("Couldn't setup logger!");
             ioe.printStackTrace();
         }
-        new Client().start();
+        new Client().start(args);
     }
 
     public PluginManager getPluginManager() {

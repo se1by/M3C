@@ -159,4 +159,12 @@ public class Utilities {
         return null;
     }
 
+    public static boolean isInt(String s) {
+        try {
+            Integer.parseInt(s);
+        } catch (NumberFormatException numberFormatException) {
+            return false;
+        }
+        return true;
+    }
 }
