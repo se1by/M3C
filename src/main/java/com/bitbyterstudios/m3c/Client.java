@@ -85,9 +85,9 @@ public class Client {
         ClientData data = ApiAccess.authenticate(user, pass);
 
         getLogger().info("Connecting to " + server + ":" + port);
-        ServerHandler serverHandler = new ServerHandler(this, data);
-        serverHandler.init(server, port);
-        serverHandler.listen();
+        ConnectionHandler connectionHandler = new ConnectionHandler(this, data);
+        connectionHandler.init(server, port);
+        connectionHandler.listen();
         ApiAccess.invalidate(data);
     }
 

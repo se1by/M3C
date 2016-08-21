@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 
 import java.nio.ByteBuffer;
@@ -14,7 +14,7 @@ public class PlayerPositionLook08 extends ReceivingPacket {
     private byte flags;
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         x = buff.getDouble();
         y = buff.getDouble();
         z = buff.getDouble();

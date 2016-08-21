@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 
 import java.nio.ByteBuffer;
@@ -11,7 +11,7 @@ public class SpawnPosition05 extends ReceivingPacket {
     private int z; //26 bit integer
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         long val = buff.getLong();
         x = (int) (val >> 38);
         y = (int) ((val >> 26) & 0xFFF);

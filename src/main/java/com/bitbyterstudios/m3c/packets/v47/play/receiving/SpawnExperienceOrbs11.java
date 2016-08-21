@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 
 import java.nio.ByteBuffer;
@@ -13,7 +13,7 @@ public class SpawnExperienceOrbs11 extends ReceivingPacket {
     private short count;
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         entityId = readVarInt(buff);
         x = buff.getInt() / 32;
         y = buff.getInt() / 32;

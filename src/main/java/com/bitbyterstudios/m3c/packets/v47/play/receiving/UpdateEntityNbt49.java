@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.nbt.AbstractTag;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 
@@ -11,7 +11,7 @@ public class UpdateEntityNbt49 extends ReceivingPacket {
     private AbstractTag nbtTag;
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         entityId = readVarInt(buff);
         nbtTag = AbstractTag.fromByteBuffer(buff, true);
         System.out.println(nbtTag.getName());

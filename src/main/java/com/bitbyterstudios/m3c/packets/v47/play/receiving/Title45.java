@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 
 import java.nio.ByteBuffer;
@@ -14,7 +14,7 @@ public class Title45 extends ReceivingPacket {
     private int fadeOut;
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         action = readVarInt(buff);
         switch (action) {
             case 0: // set title

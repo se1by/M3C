@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 
 import java.nio.ByteBuffer;
@@ -13,7 +13,7 @@ public class SpawnPainting10 extends ReceivingPacket {
     private int z;
     private byte direction;
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         entityId = readVarInt(buff);
         title = readString(buff);
         long val = buff.getLong();

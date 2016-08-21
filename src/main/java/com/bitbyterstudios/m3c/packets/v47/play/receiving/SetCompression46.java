@@ -1,7 +1,7 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
 import com.bitbyterstudios.m3c.Client;
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 
 import java.nio.ByteBuffer;
@@ -10,7 +10,7 @@ public class SetCompression46 extends ReceivingPacket { // Legacy packet; to be 
     private int threshold;
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         threshold = readVarInt(buff);
         Client.getLogger().severe("FUCK, OLD COMPRESSION!");
     }

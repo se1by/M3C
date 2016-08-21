@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 
 import java.nio.ByteBuffer;
@@ -10,7 +10,7 @@ public class MultiBlockChange22 extends ReceivingPacket {
     private int chunkY;
     private byte[] rawMultiBlockChange;
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         chunkX = buff.getInt();
         chunkY = buff.getInt();
         int size = readVarInt(buff);

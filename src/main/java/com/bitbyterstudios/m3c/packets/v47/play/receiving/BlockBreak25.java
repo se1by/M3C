@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 import com.bitbyterstudios.m3c.util.Utilities;
 
@@ -14,7 +14,7 @@ public class BlockBreak25 extends ReceivingPacket {
     private byte destroyStage;
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         entityId = readVarInt(buff);
         int[] position = Utilities.positionFromLong(buff.getLong());
         x = position[0];

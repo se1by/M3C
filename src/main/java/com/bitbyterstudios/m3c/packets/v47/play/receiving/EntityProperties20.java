@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 import com.bitbyterstudios.m3c.util.Utilities;
 
@@ -14,7 +14,7 @@ public class EntityProperties20 extends ReceivingPacket {
     private EntityProperty[] properties;
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         entityId = readVarInt(buff);
         properties = new EntityProperty[buff.getInt()];
         for (int i = 0; i < properties.length; i++) {

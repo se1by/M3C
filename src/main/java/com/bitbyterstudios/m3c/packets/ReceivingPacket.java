@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -30,7 +30,7 @@ public abstract class ReceivingPacket {
         return bytes;
     }
 
-    public abstract void handle(ByteBuffer buff, ServerHandler handler);
+    public abstract void handle(ByteBuffer buff, ConnectionHandler handler);
 
     public String readString(DataInputStream in) throws IOException {
         int length = readVarInt(in);

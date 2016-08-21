@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.nbt.AbstractTag;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 import com.bitbyterstudios.m3c.util.Utilities;
@@ -15,7 +15,7 @@ public class Map34 extends ReceivingPacket {
     private AbstractTag mapData;
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         mapId = readVarInt(buff);
         scale = buff.get();
         byte[] rawMapData = new byte[buff.remaining()];

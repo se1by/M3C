@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 import com.bitbyterstudios.m3c.util.Slot;
 
@@ -12,7 +12,7 @@ public class SetSlot2F extends ReceivingPacket {
     private Slot slotData;
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         windowId = buff.get();
         slot = buff.getShort();
         slotData = Slot.fromByteBuffer(buff);

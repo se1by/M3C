@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 import com.bitbyterstudios.m3c.util.Utilities;
 
@@ -15,7 +15,7 @@ public class Effect28 extends ReceivingPacket {
     private boolean disableRelativeVolume;
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         effectId = buff.getInt();
         int[] position = Utilities.positionFromLong(buff.getLong());
         x = position[0];

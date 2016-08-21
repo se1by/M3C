@@ -103,7 +103,7 @@ import java.util.zip.DataFormatException;
 
 import javax.crypto.SecretKey;
 
-public class ServerHandler {
+public class ConnectionHandler {
 
     private Socket socket;
     private DataOutputStream out;
@@ -118,7 +118,7 @@ public class ServerHandler {
     private int protocolVersion;
     private int compressionThreshold;
 
-    public ServerHandler(Client client, ClientData data) {
+    public ConnectionHandler(Client client, ClientData data) {
         this.client = client;
         this.data = data;
     }

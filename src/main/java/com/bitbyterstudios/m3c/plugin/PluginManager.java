@@ -1,7 +1,7 @@
 package com.bitbyterstudios.m3c.plugin;
 
 import com.bitbyterstudios.m3c.Client;
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 
 import java.io.File;
@@ -62,7 +62,7 @@ public class PluginManager {
     }
 
     @SuppressWarnings("unchecked")
-    public void callListeners(ReceivingPacket packet, ServerHandler handler) {
+    public void callListeners(ReceivingPacket packet, ConnectionHandler handler) {
         if (listeners.get(packet.getClass()) == null) {
             return;
         }

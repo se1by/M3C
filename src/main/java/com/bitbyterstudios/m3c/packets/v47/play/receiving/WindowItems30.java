@@ -1,6 +1,6 @@
 package com.bitbyterstudios.m3c.packets.v47.play.receiving;
 
-import com.bitbyterstudios.m3c.ServerHandler;
+import com.bitbyterstudios.m3c.ConnectionHandler;
 import com.bitbyterstudios.m3c.packets.ReceivingPacket;
 import com.bitbyterstudios.m3c.util.Slot;
 
@@ -11,7 +11,7 @@ public class WindowItems30 extends ReceivingPacket {
     private Slot[] slots;
 
     @Override
-    public void handle(ByteBuffer buff, ServerHandler handler) {
+    public void handle(ByteBuffer buff, ConnectionHandler handler) {
         windowId = (byte) (buff.get() & 0xFF);
         slots = new Slot[buff.getShort()];
         for (int i = 0; i < slots.length; i++) {
