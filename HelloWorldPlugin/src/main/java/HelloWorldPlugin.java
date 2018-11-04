@@ -1,7 +1,7 @@
-import com.bitbyterstudios.m3c.Client;
-import com.bitbyterstudios.m3c.ConnectionHandler;
-import com.bitbyterstudios.m3c.packets.v47.play.receiving.Chat02;
-import com.bitbyterstudios.m3c.plugin.Plugin;
+import ninja.seibert.m3c.Client;
+import ninja.seibert.m3c.ConnectionHandler;
+import ninja.seibert.m3c.packets.v47.play.receiving.Chat02;
+import ninja.seibert.m3c.plugin.Plugin;
 
 public class HelloWorldPlugin implements Plugin {
 
