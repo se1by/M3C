@@ -41,7 +41,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.bitbyterstudios.m3c.Client</mainClass>
+                            <mainClass>ninja.seibert.m3c.Client</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
