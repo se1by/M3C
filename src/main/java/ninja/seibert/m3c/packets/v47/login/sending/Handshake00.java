@@ -18,6 +18,13 @@ public class Handshake00 extends SendingPacket {
         nextState = 2;
     }
 
+    public Handshake00(int protocolVersion, String host, short port, int nextState) {
+        this.protocolVersion = protocolVersion;
+        this.host = host;
+        this.port = port;
+        this.nextState = nextState;
+    }
+
     @Override
     public ByteBuffer getBuffer() {
         ByteBuffer buffer = ByteBuffer.allocate(getPacketSize());

@@ -8,6 +8,8 @@ import ninja.seibert.m3c.packets.v47.login.receiving.EncryptionRequest01;
 import ninja.seibert.m3c.packets.v47.login.sending.EncryptionResponse01;
 import ninja.seibert.m3c.packets.v47.login.sending.Handshake00;
 import ninja.seibert.m3c.packets.v47.login.sending.LoginStart00;
+import ninja.seibert.m3c.packets.v47.status.receiving.Response00;
+import ninja.seibert.m3c.packets.v47.status.sending.Request00;
 import ninja.seibert.m3c.util.CryptoHelper;
 import ninja.seibert.m3c.util.Utilities;
 import com.google.common.io.ByteArrayDataOutput;
@@ -51,11 +53,40 @@ public class ConnectionHandler {
             out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
             packetsToSend = new ArrayList<>();
-            //TODO: determine protocolVersion of server
-            protocolVersion = 47;
+            protocolVersion = checkProtocolVersion(host, (short) port);
+            getLogger().info("Server " + host + " uses protocol " + protocolVersion);
+            // resetting socket
+            socket.close();
+            socket = new Socket(host, port);
+            out = new DataOutputStream(socket.getOutputStream());
+            in = new DataInputStream(socket.getInputStream());
+
             protocol = Protocol.getProtocol(protocolVersion);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private int checkProtocolVersion(String host, short port) throws IOException {
+        Protocol latestProtocol = Protocol.getLatestProtocol();
+        send(new Handshake00(latestProtocol.getVersion(), host, port, 1));
+        send(new Request00());
+
+        int uncompressedLength = Utilities.readVarInt(in);
+        byte[] raw = new byte[uncompressedLength];
+        in.readFully(raw);
+        ByteBuffer buff = ByteBuffer.wrap(raw);
+
+        int type = Utilities.readVarInt(buff);
+        if (type == 0x00) { //Response object
+            Response00 response = new Response00();
+            response.handle(buff, this);
+            getClient().getPluginManager().callListeners(response, this);
+
+            return response.getProtocol();
+        } else {
+            getLogger().warning("Unknown status packet " + type + "!");
+            return -1;
         }
     }
 

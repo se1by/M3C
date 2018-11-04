@@ -20,4 +20,8 @@ public interface Protocol {
                 throw new UnsupportedOperationException("Protocol " + version + " not yet implemented!");
         }
     }
+
+    static Protocol getLatestProtocol() {
+        return new Protocol47();
+    }
 }
