@@ -242,7 +242,6 @@ public class ConnectionHandler {
         BufferedOutputStream buffOut = new BufferedOutputStream(CryptoHelper.encryptOuputStream(secretKey, socket.getOutputStream()));
         out = new DataOutputStream(buffOut);
         in = new DataInputStream(CryptoHelper.decryptInputStream(secretKey, socket.getInputStream()));
-        getLogger().info("Encrypted streams");
     }
 
     public void addPacketToSend(SendingPacket packet) {

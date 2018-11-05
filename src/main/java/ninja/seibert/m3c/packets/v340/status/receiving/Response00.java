@@ -31,7 +31,6 @@ public class Response00 extends ReceivingPacket {
     public void handle(ByteBuffer buff, ConnectionHandler handler) {
         String json = readString(buff);
         this.rawJson = json;
-        handler.getLogger().info("Raw json: " + rawJson);
 
         JSONObject jsonObject;
         try {
