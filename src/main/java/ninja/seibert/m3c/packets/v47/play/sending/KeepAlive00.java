@@ -6,19 +6,19 @@ import ninja.seibert.m3c.util.Utilities;
 import java.nio.ByteBuffer;
 
 public class KeepAlive00 extends SendingPacket {
-    private int id;
+    private long id;
 
     public KeepAlive00() {
     }
 
-    public KeepAlive00(int id) {
+    public KeepAlive00(long id) {
         this.id = id;
     }
 
     @Override
     public ByteBuffer getBuffer() {
-        ByteBuffer buffer = ByteBuffer.allocate(Utilities.getVarIntWidth(id));
-        writeVarInt(buffer, id);
+        ByteBuffer buffer = ByteBuffer.allocate(Utilities.getVarLongWidth(id));
+        writeVarLong(buffer, id);
         return buffer;
     }
 
@@ -27,11 +27,11 @@ public class KeepAlive00 extends SendingPacket {
         return 0x00;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 }

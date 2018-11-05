@@ -23,7 +23,24 @@ public abstract class SendingPacket {
         return varInt;
     }
 
+    private byte[] getVarLong(long realLong) {
+        byte[] varLong = new byte[Utilities.getVarLongWidth(realLong)];
+        for (int i = 0; i < varLong.length; i++) {
+            if ((realLong & 0xFFFFFF80) == 0) {
+                varLong[i] = (byte) realLong;
+                return varLong;
+            }
+
+            varLong[i] = (byte) (realLong & 0x7F | 0x80);
+            realLong >>>= 7;
+        }
+
+        return varLong;
+    }
+
     public void writeVarInt(ByteBuffer buffer, int paramInt) {
         buffer.put(getVarint(paramInt));
     }
+
+    public void writeVarLong(ByteBuffer buffer, long paramLong) { buffer.put(getVarLong(paramLong)); }
 }

@@ -82,7 +82,7 @@ public class ApiAccess {
             String rawJson = br.readLine();
             JSONObject parsedObject = (JSONObject) parser.parse(rawJson);
             if (parsedObject.containsKey("error")) {
-                Client.getLogger().warning(parsedObject.toJSONString());
+                Client.getLogger().warning(rawJson);
             }
             return parsedObject;
         } catch (IOException | ParseException exception) {

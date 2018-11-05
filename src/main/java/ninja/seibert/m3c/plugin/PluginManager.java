@@ -63,10 +63,12 @@ public class PluginManager {
 
     @SuppressWarnings("unchecked")
     public void callListeners(ReceivingPacket packet, ConnectionHandler handler) {
-        if (listeners.get(packet.getClass()) == null) {
-            return;
+        Class clazz = packet.getClass();
+        while (clazz != null) {
+            if (listeners.containsKey(clazz)) {
+                listeners.get(clazz).forEach(listener -> listener.handle(packet, handler));
+            }
+            clazz = clazz.getSuperclass();
         }
-        listeners.get(packet.getClass()).forEach(listener1 ->
-                listener1.handle(packet, handler));
     }
 }

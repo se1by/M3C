@@ -1,20 +1,20 @@
 
 package ninja.seibert.m3c;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import ninja.seibert.m3c.packets.Protocol;
 import ninja.seibert.m3c.packets.ReceivingPacket;
 import ninja.seibert.m3c.packets.SendingPacket;
-import ninja.seibert.m3c.packets.v47.login.receiving.EncryptionRequest01;
-import ninja.seibert.m3c.packets.v47.login.sending.EncryptionResponse01;
+import ninja.seibert.m3c.packets.definitions.login.receiving.EncryptionRequest;
 import ninja.seibert.m3c.packets.v47.login.sending.Handshake00;
 import ninja.seibert.m3c.packets.v47.login.sending.LoginStart00;
 import ninja.seibert.m3c.packets.v47.status.receiving.Response00;
 import ninja.seibert.m3c.packets.v47.status.sending.Request00;
 import ninja.seibert.m3c.util.CryptoHelper;
 import ninja.seibert.m3c.util.Utilities;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 
+import javax.crypto.SecretKey;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -26,8 +26,6 @@ import java.util.Collection;
 import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
 
-import javax.crypto.SecretKey;
-
 public class ConnectionHandler {
 
     private Socket socket;
@@ -35,6 +33,7 @@ public class ConnectionHandler {
     private DataInputStream in;
     private Client client;
     private ClientData data;
+    private boolean stop;
 
     private Protocol protocol;
     private Collection<SendingPacket> packetsToSend;
@@ -104,7 +103,7 @@ public class ConnectionHandler {
         }
 
         int unknown = 0;
-        while (true) {
+        while (!stop) {
             ByteBuffer buff;
             int uncompressedLength;
 
@@ -227,30 +226,30 @@ public class ConnectionHandler {
             if (type == 0) { //We got kicked :(
                 return false;
             } else if (type == 1) { //We should encrypt!
-                encrypt((EncryptionRequest01) packet);
+                ((EncryptionRequest) packet).encrypt(this);
             } else if (type == 2) { //Yay, successful login!
                 return true;
+            }
+
+            for (SendingPacket sendingPacket : packetsToSend) {
+                Client.getLogger().finest("sending packet " + sendingPacket.getClass().getSimpleName());
+                send(sendingPacket);
             }
         }
     }
 
-    private void encrypt(EncryptionRequest01 req) throws IOException {
-        SecretKey secretKey = CryptoHelper.createNewSharedKey();//generate a secret key
-        String servId = CryptoHelper.getServerIdHash(req.getServerId(), req.getPubKey(), secretKey);
-        ApiAccess.sendSessionRequest(data.getAccessToken(), servId, data.getUuid());
-        byte[] secret = CryptoHelper.encryptData(req.getPubKey(), secretKey.getEncoded());
-        byte[] verify = CryptoHelper.encryptData(req.getPubKey(), req.getVerifyToken());
-        send(new EncryptionResponse01(secret, verify));
+    public void encryptStreams(SecretKey secretKey) throws IOException {
         BufferedOutputStream buffOut = new BufferedOutputStream(CryptoHelper.encryptOuputStream(secretKey, socket.getOutputStream()));
         out = new DataOutputStream(buffOut);
         in = new DataInputStream(CryptoHelper.decryptInputStream(secretKey, socket.getInputStream()));
+        getLogger().info("Encrypted streams");
     }
 
     public void addPacketToSend(SendingPacket packet) {
         packetsToSend.add(packet);
     }
 
-    private void send(SendingPacket packet) throws IOException {
+    public void send(SendingPacket packet) throws IOException {
         ByteBuffer buffer = packet.getBuffer();
         ByteArrayDataOutput buff2 = ByteStreams.newDataOutput();
 
@@ -275,6 +274,10 @@ public class ConnectionHandler {
         out.flush();
     }
 
+    public void stop() {
+        stop = true;
+    }
+
     public Logger getLogger() {
         return Client.getLogger();
     }
@@ -285,6 +288,10 @@ public class ConnectionHandler {
 
     public ClientData getData() {
         return data;
+    }
+
+    public Protocol getProtocol() {
+        return protocol;
     }
 
     public void setCompressionThreshold(int compressionThreshold) {

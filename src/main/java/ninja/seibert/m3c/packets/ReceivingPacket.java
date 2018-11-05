@@ -90,11 +90,29 @@ public abstract class ReceivingPacket {
             int k = buff.get();
 
             i |= (k & 0x7F) << j++ * 7;
-            if (j > 10) throw new RuntimeException("VarInt too big");
+            if (j > 10) throw new RuntimeException("VarLong too big");
 
             if ((k & 0x80) != 128) break; //MSB not set? 0x80 = 1000 0000(b)
         }
 
         return i;
+    }
+
+    public static long otherReadVarLong(ByteBuffer buffer) {
+        int numRead = 0;
+        long result = 0;
+        byte read;
+        do {
+            read = buffer.get();
+            int value = (read & 0b01111111);
+            result |= (value << (7 * numRead));
+
+            numRead++;
+            if (numRead > 10) {
+                throw new RuntimeException("VarLong is too big");
+            }
+        } while ((read & 0b10000000) != 0);
+
+        return result;
     }
 }

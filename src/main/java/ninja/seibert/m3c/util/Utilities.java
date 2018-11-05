@@ -83,6 +83,15 @@ public class Utilities {
         return i;
     }
 
+    public static int getVarLongWidth(long varLong) {
+        int i = 1;
+        while ((varLong & 0xFFFFFF80) != 0) {
+            varLong >>>= 7;
+            i++;
+        }
+        return i;
+    }
+
     public static String readShortPrefixedStringFromByteBuffer(ByteBuffer buffer) {
         short length = buffer.getShort();
         byte[] stringBytes = new byte[length];

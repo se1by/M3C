@@ -1,9 +1,11 @@
 package ninja.seibert.m3c;
 
+import ninja.seibert.m3c.listener.DisconnectListener;
 import ninja.seibert.m3c.listener.KeepAliveListener;
 import ninja.seibert.m3c.listener.SetCompressionListener;
-import ninja.seibert.m3c.packets.v47.play.receiving.KeepAlive00;
-import ninja.seibert.m3c.packets.v47.login.receiving.SetCompression03;
+import ninja.seibert.m3c.packets.definitions.play.receiving.Disconnect;
+import ninja.seibert.m3c.packets.definitions.play.receiving.KeepAlive;
+import ninja.seibert.m3c.packets.definitions.login.receiving.SetCompression;
 import ninja.seibert.m3c.plugin.PluginManager;
 import ninja.seibert.m3c.util.LogFormatter;
 import ninja.seibert.m3c.util.Utilities;
@@ -79,8 +81,9 @@ public class Client {
         }
 
         pluginManager.load();
-        pluginManager.addListener(KeepAlive00.class, new KeepAliveListener());
-        pluginManager.addListener(SetCompression03.class, new SetCompressionListener());
+        pluginManager.addListener(KeepAlive.class, new KeepAliveListener());
+        pluginManager.addListener(SetCompression.class, new SetCompressionListener());
+        pluginManager.addListener(Disconnect.class, new DisconnectListener());
 
         getLogger().info("Authenticating...");
         ClientData data = ApiAccess.authenticate(user, pass);
@@ -145,7 +148,12 @@ public class Client {
             System.err.println("Couldn't setup logger!");
             ioe.printStackTrace();
         }
-        new Client().start(args);
+
+        try {
+            new Client().start(args);
+        } catch (Exception exception) {
+            logger.log(Level.WARNING, exception.getMessage(), exception);
+        }
     }
 
     public PluginManager getPluginManager() {
